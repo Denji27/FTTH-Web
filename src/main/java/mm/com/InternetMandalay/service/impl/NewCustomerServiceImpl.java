@@ -18,7 +18,6 @@ public class NewCustomerServiceImpl implements NewCustomerService {
     private NewCustomerRepo newCustomerRepo;
 
     @Override
-    @CacheEvict(value = "NewCustomer", allEntries = true)
     public NewCustomer create(String collaboratorCode ,NewCustomerRequest newCustomerRequest) {
         NewCustomer newCustomer = new NewCustomer();
             newCustomer.setCollaboratorCode(collaboratorCode);
@@ -31,13 +30,11 @@ public class NewCustomerServiceImpl implements NewCustomerService {
     }
 
     @Override
-    @Cacheable(value = "NewCustomer")
     public List<NewCustomer> getAll() {
         return newCustomerRepo.findAll();
     }
 
     @Override
-    @CacheEvict(value = "NewCustomer", allEntries = true)
     public void deleteAll() {
         newCustomerRepo.deleteAll();
     }
