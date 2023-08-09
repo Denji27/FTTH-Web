@@ -3,6 +3,8 @@ package mm.com.InternetMandalay.controller;
 import mm.com.InternetMandalay.request.SearchRequest;
 import mm.com.InternetMandalay.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -19,6 +21,7 @@ public class CustomerController {
 
     @PostMapping("/upload")
     @Secured("ROLE_admin")
+    @CacheEvict(value = "Customer")
     public ResponseEntity<String> uploadExcel(@RequestParam("file") MultipartFile file){
         try {
             customerService.uploadData(file.getInputStream());
@@ -31,12 +34,14 @@ public class CustomerController {
     }
 
     @GetMapping("/search")
+    @Cacheable(value = "Customer")
     public ResponseEntity<?> searchCustomer(@RequestBody SearchRequest searchRequest){
         return ResponseEntity.ok(customerService.search(searchRequest));
     }
 
     @DeleteMapping("/reset-customer-data")
     @Secured("ROLE_admin")
+    @CacheEvict(value = "Customer")
     public ResponseEntity<?> reset(){
         customerService.resetCustomerData();
         return ResponseEntity.ok("All Customer Data has been cleared!");
