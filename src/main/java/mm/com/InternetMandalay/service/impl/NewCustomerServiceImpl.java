@@ -15,13 +15,14 @@ public class NewCustomerServiceImpl implements NewCustomerService {
     private NewCustomerRepo newCustomerRepo;
 
     @Override
-    public NewCustomer create(NewCustomerRequest newCustomerRequest) {
-        NewCustomer newCustomer = NewCustomer.builder()
-                .name(newCustomerRequest.getName())
-                .phoneNumber(newCustomerRequest.getPhoneNumber())
-                .serviceName(newCustomerRequest.getServiceName())
-                .address(newCustomerRequest.getAddress())
-                .build();
+    public NewCustomer create(String collaboratorCode ,NewCustomerRequest newCustomerRequest) {
+        NewCustomer newCustomer = new NewCustomer();
+            newCustomer.setCollaboratorCode(collaboratorCode);
+            newCustomer.setName(newCustomerRequest.getName());
+            newCustomer.setPhoneNumber(newCustomerRequest.getPhoneNumber());
+            newCustomer.setServiceName(newCustomerRequest.getServiceName());
+            newCustomer.setAddress(newCustomerRequest.getAddress());
+
         return newCustomerRepo.save(newCustomer);
     }
 

@@ -26,8 +26,8 @@ public class NewCustomerController {
     private ExcelUtils excelUtils;
 
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody NewCustomerRequest newCustomerRequest){
-        return ResponseEntity.ok(newCustomerService.create(newCustomerRequest));
+    public ResponseEntity<?> create(@RequestParam(defaultValue = "none") String collaboratorCode, @RequestBody NewCustomerRequest newCustomerRequest){
+        return ResponseEntity.ok(newCustomerService.create(collaboratorCode,newCustomerRequest));
     }
 
     @GetMapping("/get-all")

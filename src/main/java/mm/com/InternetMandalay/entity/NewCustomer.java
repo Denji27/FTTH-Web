@@ -22,6 +22,9 @@ public class NewCustomer {
     @Column(name = "ID")
     private Integer id;
 
+    @Column(name = "COLLABORATOR_CODE")
+    private String collaboratorCode;
+
     @Column(name = "NAME")
     private String name;
 
