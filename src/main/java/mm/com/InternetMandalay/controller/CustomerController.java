@@ -21,7 +21,6 @@ public class CustomerController {
 
     @PostMapping("/upload")
     @Secured("ROLE_admin")
-    @CacheEvict(value = "Customer")
     public ResponseEntity<String> uploadExcel(@RequestParam("file") MultipartFile file){
         try {
             customerService.uploadData(file.getInputStream());
@@ -34,14 +33,12 @@ public class CustomerController {
     }
 
     @GetMapping("/search")
-    @Cacheable(value = "Customer")
     public ResponseEntity<?> searchCustomer(@RequestBody SearchRequest searchRequest){
         return ResponseEntity.ok(customerService.search(searchRequest));
     }
 
     @DeleteMapping("/reset-customer-data")
     @Secured("ROLE_admin")
-    @CacheEvict(value = "Customer")
     public ResponseEntity<?> reset(){
         customerService.resetCustomerData();
         return ResponseEntity.ok("All Customer Data has been cleared!");

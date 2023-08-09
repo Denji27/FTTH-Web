@@ -23,20 +23,17 @@ public class PromotionController {
 
     @PutMapping("/update")
     @Secured("ROLE_admin")
-    @CacheEvict(value = "Promotion")
     public ResponseEntity<?> update(@RequestParam Integer id, @RequestBody PromotionUpdate promotionUpdate){
         return ResponseEntity.ok(promotionService.update(id, promotionUpdate));
     }
 
     @DeleteMapping("/delete")
     @Secured("ROLE_admin")
-    @CacheEvict(value = "Promotion")
     public void delete(@RequestParam Integer id){
         promotionService.delete(id);
     }
 
     @GetMapping("/get-all")
-    @Cacheable(value = "Promotion")
     public ResponseEntity<?> getAll(){
         return ResponseEntity.ok(promotionService.getAll());
     }

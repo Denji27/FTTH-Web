@@ -25,13 +25,11 @@ public class AbnormalCaseController {
 
     @PutMapping("/update")
     @Secured("ROLE_admin")
-    @CacheEvict(value = "AbnormalCase")
     public ResponseEntity<?> update(@RequestBody AbnormalCaseUpdate abnormalCaseUpdate){
         return ResponseEntity.ok(abnormalCaseService.update(abnormalCaseUpdate));
     }
 
     @GetMapping("/get")
-    @Cacheable(value = "AbnormalCase")
     public ResponseEntity<?> get(){
         return ResponseEntity.ok(abnormalCaseService.get());
     }

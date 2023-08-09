@@ -6,6 +6,8 @@ import mm.com.InternetMandalay.request.PaymentInstructionUpdate;
 import mm.com.InternetMandalay.service.PaymentInstructionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,6 +31,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
     }
 
     @Override
+    @CacheEvict(value = "PaymentInstruction")
     public PaymentInstruction update(PaymentInstructionUpdate paymentInstructionUpdate) {
         PaymentInstruction paymentInstruction = paymentInstructionRepo.getPaymentInstructionById(id);
         paymentInstruction.setTitle(paymentInstructionUpdate.getTitle());
@@ -38,6 +41,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
     }
 
     @Override
+    @Cacheable(value = "PaymentInstruction")
     public PaymentInstruction get() {
         return paymentInstructionRepo.getPaymentInstructionById(id);
     }

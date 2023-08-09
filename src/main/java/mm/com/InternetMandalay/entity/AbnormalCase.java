@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Data
@@ -13,7 +14,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 @Table(name = "ABNORMAL_CASE")
-public class AbnormalCase {
+public class AbnormalCase implements Serializable {
     @Id
     @Column(name = "ID")
     private String id;

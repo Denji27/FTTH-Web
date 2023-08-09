@@ -24,13 +24,11 @@ public class PaymentInstructionController {
 
     @PutMapping("/update")
     @Secured("ROLE_admin")
-    @CacheEvict(value = "PaymentInstruction")
     public ResponseEntity<?> update(@RequestBody PaymentInstructionUpdate paymentInstructionUpdate){
         return ResponseEntity.ok(paymentInstructionService.update(paymentInstructionUpdate));
     }
 
     @GetMapping("/get")
-    @Cacheable(value = "PaymentInstruction")
     public ResponseEntity<?> get(){
         return ResponseEntity.ok(paymentInstructionService.get());
     }

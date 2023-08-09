@@ -28,21 +28,19 @@ public class NewCustomerController {
     private ExcelUtils excelUtils;
 
     @PostMapping("/create")
-    @CacheEvict(value = "NewCustomer")
+
     public ResponseEntity<?> create(@RequestParam(defaultValue = "none") String collaboratorCode, @RequestBody NewCustomerRequest newCustomerRequest){
         return ResponseEntity.ok(newCustomerService.create(collaboratorCode,newCustomerRequest));
     }
 
     @GetMapping("/get-all")
     @Secured("ROLE_admin")
-    @Cacheable(value = "NewCustomer")
     public ResponseEntity<?> get(){
         return ResponseEntity.ok(newCustomerService.getAll());
     }
 
     @DeleteMapping("/delete-all")
     @Secured("ROLE_admin")
-    @CacheEvict(value = "NewCustomer")
     public ResponseEntity<?> delete(){
         newCustomerService.deleteAll();
         return ResponseEntity.ok("Delete New Customer List Successfully!");

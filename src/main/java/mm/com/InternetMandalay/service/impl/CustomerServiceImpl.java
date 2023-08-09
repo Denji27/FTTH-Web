@@ -10,6 +10,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepo customerRepo;
 
     @Override
+    @CacheEvict(value = "Customer")
     public void uploadData(InputStream excelFile) throws IOException{
         Workbook workbook = new XSSFWorkbook(excelFile);
         Sheet sheet = workbook.getSheetAt(0);
@@ -45,6 +48,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Cacheable(value = "Customer")
     public Customer search(SearchRequest searchRequest) {
         if(searchRequest.getAccount().isBlank() & searchRequest.getPhoneNumber().isBlank()){
             throw new NotFoundException("You haven't entered your account or phone number!");
@@ -71,6 +75,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @CacheEvict(value = "Customer")
     public void resetCustomerData() {
         customerRepo.deleteAll();
     }

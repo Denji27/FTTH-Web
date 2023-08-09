@@ -6,6 +6,8 @@ import mm.com.InternetMandalay.request.AbnormalCaseUpdate;
 import mm.com.InternetMandalay.service.AbnormalCaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,6 +30,7 @@ public class AbnormalCaseServiceImpl implements AbnormalCaseService {
     }
 
     @Override
+    @CacheEvict(value = "AbnormalCase")
     public AbnormalCase update(AbnormalCaseUpdate abnormalCaseUpdate) {
         AbnormalCase abnormalCase = abnormalCaseRepo.getAbnormalCaseById(id);
         abnormalCase.setTitle(abnormalCaseUpdate.getTitle());
@@ -37,6 +40,7 @@ public class AbnormalCaseServiceImpl implements AbnormalCaseService {
     }
 
     @Override
+    @Cacheable(value = "AbnormalCase")
     public AbnormalCase get() {
         return abnormalCaseRepo.getAbnormalCaseById(id);
     }

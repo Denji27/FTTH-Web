@@ -5,6 +5,8 @@ import mm.com.InternetMandalay.repository.NewCustomerRepo;
 import mm.com.InternetMandalay.request.NewCustomerRequest;
 import mm.com.InternetMandalay.service.NewCustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,7 @@ public class NewCustomerServiceImpl implements NewCustomerService {
     private NewCustomerRepo newCustomerRepo;
 
     @Override
+    @CacheEvict(value = "NewCustomer")
     public NewCustomer create(String collaboratorCode ,NewCustomerRequest newCustomerRequest) {
         NewCustomer newCustomer = new NewCustomer();
             newCustomer.setCollaboratorCode(collaboratorCode);
@@ -27,11 +30,13 @@ public class NewCustomerServiceImpl implements NewCustomerService {
     }
 
     @Override
+    @Cacheable(value = "NewCustomer")
     public List<NewCustomer> getAll() {
         return newCustomerRepo.findAll();
     }
 
     @Override
+    @CacheEvict(value = "NewCustomer")
     public void deleteAll() {
         newCustomerRepo.deleteAll();
     }

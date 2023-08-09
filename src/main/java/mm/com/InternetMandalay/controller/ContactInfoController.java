@@ -23,13 +23,11 @@ public class ContactInfoController {
 
     @PutMapping("/update")
     @Secured("ROLE_admin")
-    @CacheEvict(value = "ContactInfo")
     public ResponseEntity<?> update(@RequestBody ContactInfoUpdate contactInfoUpdate){
         return ResponseEntity.ok(contactInfoService.update(contactInfoUpdate));
     }
 
     @GetMapping("/get")
-    @Cacheable(value = "ContactInfo")
     public ResponseEntity<?> get(){
         return ResponseEntity.ok(contactInfoService.get());
     }
