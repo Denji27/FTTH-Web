@@ -24,7 +24,7 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepo customerRepo;
 
     @Override
-    @CacheEvict(value = "Customer")
+    @CacheEvict(value = "Customer", allEntries = true)
     public void uploadData(InputStream excelFile) throws IOException{
         Workbook workbook = new XSSFWorkbook(excelFile);
         Sheet sheet = workbook.getSheetAt(0);
@@ -75,7 +75,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    @CacheEvict(value = "Customer")
+    @CacheEvict(value = "Customer", allEntries = true)
     public void resetCustomerData() {
         customerRepo.deleteAll();
     }

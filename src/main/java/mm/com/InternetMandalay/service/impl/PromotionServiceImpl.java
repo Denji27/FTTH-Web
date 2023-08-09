@@ -17,7 +17,7 @@ public class PromotionServiceImpl implements PromotionService {
     private PromotionRepo promotionRepo;
 
     @Override
-    @CacheEvict(value = "Promotion")
+    @CacheEvict(value = "Promotion", allEntries = true)
     public Promotion create() {
         Promotion promotion = Promotion.builder()
                 .name("name")
@@ -29,7 +29,7 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    @CacheEvict(value = "Promotion")
+    @CacheEvict(value = "Promotion", allEntries = true)
     public Promotion update(Integer id, PromotionUpdate promotionUpdate) {
         Promotion promotion = promotionRepo.getPromotionById(id);
         promotion.setName(promotionUpdate.getName());
@@ -40,7 +40,7 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    @CacheEvict(value = "Promotion")
+    @CacheEvict(value = "Promotion", allEntries = true)
     public void delete(Integer id) {
         promotionRepo.deleteById(id);
     }

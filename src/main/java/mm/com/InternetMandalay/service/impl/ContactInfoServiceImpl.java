@@ -29,7 +29,7 @@ public class ContactInfoServiceImpl implements ContactInfoService {
     }
 
     @Override
-    @CacheEvict(value = "ContactInfo")
+    @CacheEvict(value = "ContactInfo", allEntries = true)
     public ContactInfo update(ContactInfoUpdate contactInfoUpdate) {
         ContactInfo contactInfo = contactInfoRepo.getContactInfoById(id);
         contactInfo.setHotline(contactInfoUpdate.getHotline());

@@ -3,8 +3,6 @@ package mm.com.InternetMandalay.controller;
 import mm.com.InternetMandalay.request.SearchRequest;
 import mm.com.InternetMandalay.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;

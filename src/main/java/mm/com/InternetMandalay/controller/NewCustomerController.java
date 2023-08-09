@@ -5,8 +5,6 @@ import mm.com.InternetMandalay.request.NewCustomerRequest;
 import mm.com.InternetMandalay.service.NewCustomerService;
 import mm.com.InternetMandalay.utils.ExcelUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,7 +13,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -28,7 +25,6 @@ public class NewCustomerController {
     private ExcelUtils excelUtils;
 
     @PostMapping("/create")
-
     public ResponseEntity<?> create(@RequestParam(defaultValue = "none") String collaboratorCode, @RequestBody NewCustomerRequest newCustomerRequest){
         return ResponseEntity.ok(newCustomerService.create(collaboratorCode,newCustomerRequest));
     }

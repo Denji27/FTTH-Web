@@ -30,7 +30,7 @@ public class AbnormalCaseServiceImpl implements AbnormalCaseService {
     }
 
     @Override
-    @CacheEvict(value = "AbnormalCase")
+    @CacheEvict(value = "AbnormalCase", allEntries = true)
     public AbnormalCase update(AbnormalCaseUpdate abnormalCaseUpdate) {
         AbnormalCase abnormalCase = abnormalCaseRepo.getAbnormalCaseById(id);
         abnormalCase.setTitle(abnormalCaseUpdate.getTitle());

@@ -3,8 +3,6 @@ package mm.com.InternetMandalay.controller;
 import mm.com.InternetMandalay.request.PromotionUpdate;
 import mm.com.InternetMandalay.service.PromotionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;

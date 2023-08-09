@@ -31,7 +31,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
     }
 
     @Override
-    @CacheEvict(value = "PaymentInstruction")
+    @CacheEvict(value = "PaymentInstruction", allEntries = true)
     public PaymentInstruction update(PaymentInstructionUpdate paymentInstructionUpdate) {
         PaymentInstruction paymentInstruction = paymentInstructionRepo.getPaymentInstructionById(id);
         paymentInstruction.setTitle(paymentInstructionUpdate.getTitle());
