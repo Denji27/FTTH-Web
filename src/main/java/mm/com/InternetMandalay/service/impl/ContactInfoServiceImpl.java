@@ -3,6 +3,7 @@ package mm.com.InternetMandalay.service.impl;
 import mm.com.InternetMandalay.entity.ContactInfo;
 import mm.com.InternetMandalay.repository.ContactInfoRepo;
 import mm.com.InternetMandalay.request.ContactInfoUpdate;
+import mm.com.InternetMandalay.response.ContactInfoDTO;
 import mm.com.InternetMandalay.service.ContactInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,27 +20,39 @@ public class ContactInfoServiceImpl implements ContactInfoService {
     private String id;
 
     @Override
-    public ContactInfo create() {
+    public ContactInfoDTO create() {
         ContactInfo contactInfo = ContactInfo.builder()
                 .id(id)
                 .hotline("hotline")
                 .otherInfos("some other information")
                 .build();
-        return contactInfoRepo.save(contactInfo);
+        contactInfoRepo.save(contactInfo);
+        ContactInfoDTO con = new ContactInfoDTO();
+        con.setHotline(contactInfo.getHotline());
+        con.setOtherInfos(contactInfo.getOtherInfos());
+        return con;
     }
 
     @Override
     @CacheEvict(value = "ContactInfo", allEntries = true)
-    public ContactInfo update(ContactInfoUpdate contactInfoUpdate) {
+    public ContactInfoDTO update(ContactInfoUpdate contactInfoUpdate) {
         ContactInfo contactInfo = contactInfoRepo.getContactInfoById(id);
         contactInfo.setHotline(contactInfoUpdate.getHotline());
         contactInfo.setOtherInfos(contactInfoUpdate.getOtherInfos());
-        return contactInfoRepo.save(contactInfo);
+        contactInfoRepo.save(contactInfo);
+        ContactInfoDTO con = new ContactInfoDTO();
+        con.setHotline(contactInfo.getHotline());
+        con.setOtherInfos(contactInfo.getOtherInfos());
+        return con;
     }
 
     @Override
     @Cacheable(value = "ContactInfo")
-    public ContactInfo get() {
-        return contactInfoRepo.getContactInfoById(id);
+    public ContactInfoDTO get() {
+        ContactInfo contactInfo = contactInfoRepo.getContactInfoById(id);
+        ContactInfoDTO con = new ContactInfoDTO();
+        con.setHotline(contactInfo.getHotline());
+        con.setOtherInfos(contactInfo.getOtherInfos());
+        return con;
     }
 }

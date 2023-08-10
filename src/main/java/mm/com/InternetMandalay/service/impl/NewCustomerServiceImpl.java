@@ -5,9 +5,6 @@ import mm.com.InternetMandalay.repository.NewCustomerRepo;
 import mm.com.InternetMandalay.request.NewCustomerRequest;
 import mm.com.InternetMandalay.service.NewCustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +22,6 @@ public class NewCustomerServiceImpl implements NewCustomerService {
             newCustomer.setPhoneNumber(newCustomerRequest.getPhoneNumber());
             newCustomer.setServiceName(newCustomerRequest.getServiceName());
             newCustomer.setAddress(newCustomerRequest.getAddress());
-
         return newCustomerRepo.save(newCustomer);
     }
 

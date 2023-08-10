@@ -4,6 +4,7 @@ import mm.com.InternetMandalay.entity.Customer;
 import mm.com.InternetMandalay.exception.NotFoundException;
 import mm.com.InternetMandalay.repository.CustomerRepo;
 import mm.com.InternetMandalay.request.SearchRequest;
+import mm.com.InternetMandalay.response.CustomerDTO;
 import mm.com.InternetMandalay.service.CustomerService;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -49,7 +50,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Cacheable(value = "Customer")
-    public Customer search(SearchRequest searchRequest) {
+    public CustomerDTO search(SearchRequest searchRequest) {
         if(searchRequest.getAccount().isBlank() & searchRequest.getPhoneNumber().isBlank()){
             throw new NotFoundException("You haven't entered your account or phone number!");
         }
@@ -58,20 +59,47 @@ public class CustomerServiceImpl implements CustomerService {
             if (customer == null){
                 throw new NotFoundException("Your account is not exist");
             }
-            return customer;
+            CustomerDTO cus = new CustomerDTO();
+            cus.setCustomerId(customer.getCustomerId());
+            cus.setName(customer.getName());
+            cus.setAccount(customer.getAccount());
+            cus.setServiceName(customer.getServiceName());
+            cus.setExtensionDate(customer.getExtensionDate());
+            cus.setPhoneNumber(customer.getPhoneNumber());
+            cus.setNumberOfPaidMonths(customer.getNumberOfPaidMonths());
+            cus.setInternetBlockingDate(customer.getInternetBlockingDate());
+            return cus;
         }
         if (!searchRequest.getAccount().isBlank() & searchRequest.getPhoneNumber().isBlank()){
             Customer customer = customerRepo.findCustomerByAccount(searchRequest.getAccount());
             if (customer == null){
                 throw new NotFoundException("Your account is not exist");
             }
-            return customer;
+            CustomerDTO cus = new CustomerDTO();
+            cus.setCustomerId(customer.getCustomerId());
+            cus.setName(customer.getName());
+            cus.setAccount(customer.getAccount());
+            cus.setServiceName(customer.getServiceName());
+            cus.setExtensionDate(customer.getExtensionDate());
+            cus.setPhoneNumber(customer.getPhoneNumber());
+            cus.setNumberOfPaidMonths(customer.getNumberOfPaidMonths());
+            cus.setInternetBlockingDate(customer.getInternetBlockingDate());
+            return cus;
         }
         Customer customer = customerRepo.findCustomerByAccountAndPhoneNumber(searchRequest.getAccount(), searchRequest.getPhoneNumber());
         if (customer == null){
             throw new NotFoundException("Your account is not exist");
         }
-        return customer;
+        CustomerDTO cus = new CustomerDTO();
+        cus.setCustomerId(customer.getCustomerId());
+        cus.setName(customer.getName());
+        cus.setAccount(customer.getAccount());
+        cus.setServiceName(customer.getServiceName());
+        cus.setExtensionDate(customer.getExtensionDate());
+        cus.setPhoneNumber(customer.getPhoneNumber());
+        cus.setNumberOfPaidMonths(customer.getNumberOfPaidMonths());
+        cus.setInternetBlockingDate(customer.getInternetBlockingDate());
+        return cus;
     }
 
     @Override
