@@ -7,8 +7,6 @@ import mm.com.InternetMandalay.response.AbnormalCaseDTO;
 import mm.com.InternetMandalay.service.AbnormalCaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,24 +22,7 @@ public class AbnormalCaseServiceImpl implements AbnormalCaseService {
     @Value("${AbnormalCase.Id}")
     private String id;
 
-//    @Override
-//    public AbnormalCaseDTO create() {
-//        AbnormalCase abnormalCase = AbnormalCase.builder()
-//                .id(id)
-//                .title("Default Title")
-//                .image("Default Image")
-//                .description("Default Description")
-//                .build();
-//        abnormalCaseRepo.save(abnormalCase);
-//        AbnormalCaseDTO ab = new AbnormalCaseDTO();
-//        ab.setTitle(abnormalCase.getTitle());
-//        ab.setImage(abnormalCase.getImage());
-//        ab.setDescription(abnormalCase.getDescription());
-//        return ab;
-//    }
-
     @Override
-    @CacheEvict(value = "AbnormalCase", allEntries = true)
     public AbnormalCaseDTO update(MultipartFile file, String title, String description) {
         if (!abnormalCaseRepo.existsById(id)){
             AbnormalCase abnormalCase = new AbnormalCase();
@@ -87,7 +68,6 @@ public class AbnormalCaseServiceImpl implements AbnormalCaseService {
     }
 
     @Override
-    @Cacheable(value = "AbnormalCase")
     public AbnormalCaseDTO get() {
         AbnormalCase abnormalCase = abnormalCaseRepo.getAbnormalCaseById(id);
         AbnormalCaseDTO ab = new AbnormalCaseDTO();

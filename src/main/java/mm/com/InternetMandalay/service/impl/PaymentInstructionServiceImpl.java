@@ -6,8 +6,6 @@ import mm.com.InternetMandalay.response.PaymentInstructionDTO;
 import mm.com.InternetMandalay.service.PaymentInstructionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,19 +22,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
     private String id;
 
 
-//    @Override
-//    public PaymentInstruction create() {
-//        PaymentInstruction paymentInstruction = PaymentInstruction.builder()
-//                .id(id)
-//                .title("Default Title")
-//                .image("Default Image")
-//                .description("Default Description")
-//                .build();
-//        return paymentInstructionRepo.save(paymentInstruction);
-//    }
-
     @Override
-    @CacheEvict(value = "PaymentInstruction", allEntries = true)
     public PaymentInstructionDTO update(MultipartFile file, String title, String description) {
         if (!paymentInstructionRepo.existsById(id)){
             PaymentInstruction paymentInstruction = new PaymentInstruction();
@@ -82,7 +68,6 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
     }
 
     @Override
-    @Cacheable(value = "PaymentInstruction")
     public PaymentInstructionDTO get() {
         PaymentInstruction paymentInstruction = paymentInstructionRepo.getPaymentInstructionById(id);
         PaymentInstructionDTO pm = new PaymentInstructionDTO();

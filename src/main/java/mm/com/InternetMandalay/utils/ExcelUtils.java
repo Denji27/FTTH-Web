@@ -1,6 +1,5 @@
 package mm.com.InternetMandalay.utils;
 
-import mm.com.InternetMandalay.entity.Customer;
 import mm.com.InternetMandalay.entity.NewCustomer;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;

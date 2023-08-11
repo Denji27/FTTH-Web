@@ -13,12 +13,6 @@ public class PaymentInstructionController {
     @Autowired
     private PaymentInstructionService paymentInstructionService;
 
-//    @PostMapping("/create")
-//    @Secured("ROLE_admin")
-//    public ResponseEntity<?> create(){
-//        return ResponseEntity.ok(paymentInstructionService.create());
-//    }
-
     @PutMapping("/update")
     @Secured("ROLE_admin")
     public ResponseEntity<?> update(@RequestParam("file") MultipartFile file,

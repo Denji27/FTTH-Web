@@ -7,8 +7,6 @@ import mm.com.InternetMandalay.response.ContactInfoDTO;
 import mm.com.InternetMandalay.service.ContactInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,7 +32,6 @@ public class ContactInfoServiceImpl implements ContactInfoService {
     }
 
     @Override
-    @CacheEvict(value = "ContactInfo", allEntries = true)
     public ContactInfoDTO update(ContactInfoUpdate contactInfoUpdate) {
         ContactInfo contactInfo = contactInfoRepo.getContactInfoById(id);
         contactInfo.setHotline(contactInfoUpdate.getHotline());
@@ -47,7 +44,6 @@ public class ContactInfoServiceImpl implements ContactInfoService {
     }
 
     @Override
-    @Cacheable(value = "ContactInfo")
     public ContactInfoDTO get() {
         ContactInfo contactInfo = contactInfoRepo.getContactInfoById(id);
         ContactInfoDTO con = new ContactInfoDTO();

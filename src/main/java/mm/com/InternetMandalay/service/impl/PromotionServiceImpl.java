@@ -6,8 +6,6 @@ import mm.com.InternetMandalay.request.PromotionUpdate;
 import mm.com.InternetMandalay.response.PromotionDTO;
 import mm.com.InternetMandalay.service.PromotionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,7 +17,6 @@ public class PromotionServiceImpl implements PromotionService {
     private PromotionRepo promotionRepo;
 
     @Override
-    @CacheEvict(value = "Promotion", allEntries = true)
     public PromotionDTO create() {
         Promotion promotion = Promotion.builder()
                 .name("name")
@@ -37,7 +34,6 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    @CacheEvict(value = "Promotion", allEntries = true)
     public PromotionDTO update(Integer id, PromotionUpdate promotionUpdate) {
         Promotion promotion = promotionRepo.getPromotionById(id);
         promotion.setName(promotionUpdate.getName());
@@ -54,13 +50,11 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    @CacheEvict(value = "Promotion", allEntries = true)
     public void delete(Integer id) {
         promotionRepo.deleteById(id);
     }
 
     @Override
-    @Cacheable(value = "Promotion")
     public List<PromotionDTO> getAll() {
         List<Promotion> promotions = promotionRepo.findAll();
         List<PromotionDTO> promotionDTOS = new ArrayList<>();

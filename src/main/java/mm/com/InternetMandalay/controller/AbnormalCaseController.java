@@ -13,12 +13,6 @@ public class AbnormalCaseController {
     @Autowired
     private AbnormalCaseService abnormalCaseService;
 
-//    @PostMapping("/create")
-//    @Secured("ROLE_admin")
-//    public ResponseEntity<?> create(){
-//        return ResponseEntity.ok(abnormalCaseService.create());
-//    }
-
     @PutMapping("/update")
     @Secured("ROLE_admin")
     public ResponseEntity<?> update(@RequestParam("file") MultipartFile file,
