@@ -13,12 +13,6 @@ public class ContactInfoController {
     @Autowired
     private ContactInfoService contactInfoService;
 
-    @PostMapping("/create")
-    @Secured("ROLE_admin")
-    public ResponseEntity<?> create(){
-        return ResponseEntity.ok(contactInfoService.create());
-    }
-
     @PutMapping("/update")
     @Secured("ROLE_admin")
     public ResponseEntity<?> update(@RequestBody ContactInfoUpdate contactInfoUpdate){

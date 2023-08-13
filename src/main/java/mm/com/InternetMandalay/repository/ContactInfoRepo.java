@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ContactInfoRepo extends JpaRepository<ContactInfo, String> {
     ContactInfo getContactInfoById(String id);
+    Boolean existsContactInfoById(String id);
 }

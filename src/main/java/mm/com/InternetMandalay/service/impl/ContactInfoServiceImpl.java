@@ -18,21 +18,19 @@ public class ContactInfoServiceImpl implements ContactInfoService {
     private String id;
 
     @Override
-    public ContactInfoDTO create() {
-        ContactInfo contactInfo = ContactInfo.builder()
-                .id(id)
-                .hotline("hotline")
-                .otherInfos("some other information")
-                .build();
-        contactInfoRepo.save(contactInfo);
-        ContactInfoDTO con = new ContactInfoDTO();
-        con.setHotline(contactInfo.getHotline());
-        con.setOtherInfos(contactInfo.getOtherInfos());
-        return con;
-    }
-
-    @Override
     public ContactInfoDTO update(ContactInfoUpdate contactInfoUpdate) {
+        if(!contactInfoRepo.existsContactInfoById(id)){
+            ContactInfo contactInfo = ContactInfo.builder()
+                    .id(id)
+                    .hotline(contactInfoUpdate.getHotline())
+                    .otherInfos(contactInfoUpdate.getOtherInfos())
+                    .build();
+            contactInfoRepo.save(contactInfo);
+            ContactInfoDTO con = new ContactInfoDTO();
+            con.setHotline(contactInfo.getHotline());
+            con.setOtherInfos(contactInfo.getOtherInfos());
+            return con;
+        }
         ContactInfo contactInfo = contactInfoRepo.getContactInfoById(id);
         contactInfo.setHotline(contactInfoUpdate.getHotline());
         contactInfo.setOtherInfos(contactInfoUpdate.getOtherInfos());
