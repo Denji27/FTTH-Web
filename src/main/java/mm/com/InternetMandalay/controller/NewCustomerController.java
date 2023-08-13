@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/new-customer")
 public class NewCustomerController {
     @Autowired
