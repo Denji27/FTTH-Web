@@ -73,7 +73,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
             File storeFile = new File("/root/tomcat/webapps/image" + filePath);
             file.transferTo(storeFile);
             log.info("Create file {} successfully", file.getOriginalFilename());
-            return "https://internetmandalay.com/image" + filePath;
+            return "https://internetmandalay.com/image/ubuntu-4.png" + filePath;
         } catch (IOException e) {
             log.error("An error occurred while uploading the file, ", e);
             return null;
