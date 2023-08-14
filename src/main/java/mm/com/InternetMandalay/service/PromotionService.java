@@ -7,8 +7,9 @@ import mm.com.InternetMandalay.response.PromotionDTO;
 import java.util.List;
 
 public interface PromotionService {
-    PromotionDTO create();
-    PromotionDTO update(Integer id, PromotionUpdate promotionUpdate);
+    Promotion create();
+    Promotion update(Integer id, PromotionUpdate promotionUpdate);
     void delete(Integer id);
-    List<PromotionDTO> getAll();
+    List<Promotion> getAll();
+    List<PromotionDTO> getAllDTO();
 }

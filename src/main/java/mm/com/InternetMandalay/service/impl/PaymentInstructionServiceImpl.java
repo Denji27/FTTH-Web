@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.UUID;
 
 @Service
 public class PaymentInstructionServiceImpl implements PaymentInstructionService {
@@ -21,6 +24,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
     @Value("${PaymentInstruction.Id}")
     private String id;
 
+    private final Logger log = LoggerFactory.getLogger(PaymentInstructionServiceImpl.class);
 
     @Override
     public PaymentInstructionDTO update(MultipartFile file, String title, String description) {
@@ -32,11 +36,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
                 System.out.println("not a a valid file");
                 throw new RuntimeException();
             }
-            try {
-                paymentInstruction.setImage(Base64.getEncoder().encodeToString(file.getBytes()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            paymentInstruction.setImage(writeFileLocal(file));
             paymentInstruction.setDescription(description);
             paymentInstruction.setTitle(title);
             paymentInstructionRepo.save(paymentInstruction);
@@ -52,11 +52,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
             System.out.println("not a a valid file");
             throw new RuntimeException();
         }
-        try {
-            paymentInstruction.setImage(Base64.getEncoder().encodeToString(file.getBytes()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        paymentInstruction.setImage(writeFileLocal(file));
         paymentInstruction.setDescription(description);
         paymentInstruction.setTitle(title);
         paymentInstructionRepo.save(paymentInstruction);
@@ -65,6 +61,23 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
         pm.setImage(paymentInstruction.getImage());
         pm.setDescription(paymentInstruction.getDescription());
         return pm;
+    }
+
+    public String writeFileLocal(MultipartFile file) {
+        if (file.isEmpty()) {
+            return null;
+        }
+        String filePath = UUID.randomUUID() + "-" + UUID.randomUUID().toString().substring(0, 8);
+
+        try {
+            File storeFile = new File("/root/tomcat/webapps/image" + filePath);
+            file.transferTo(storeFile);
+            log.info("Create file {} successfully", file.getOriginalFilename());
+            return "https://internetmandalay.com/image" + filePath;
+        } catch (IOException e) {
+            log.error("An error occurred while uploading the file, ", e);
+            return null;
+        }
     }
 
     @Override
