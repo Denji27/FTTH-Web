@@ -68,14 +68,12 @@ public class AbnormalCaseServiceImpl implements AbnormalCaseService {
         if (file.isEmpty()) {
             return null;
         }
-
         String filePath = UUID.randomUUID() + "-" + UUID.randomUUID().toString().substring(0, 8);
-
         try {
-            File storeFile = new File("/root/tomcat/webapps/image" + filePath);
+            File storeFile = new File("/root/tomcat/webapps/image/" + filePath);
             file.transferTo(storeFile);
             log.info("Create file {} successfully", file.getOriginalFilename());
-            return "https://internetmandalay.com/image/ubuntu-4.png" + filePath;
+            return "https://internetmandalay.com/image/" + filePath;
         } catch (IOException e) {
             log.error("An error occurred while uploading the file, ", e);
             return null;
