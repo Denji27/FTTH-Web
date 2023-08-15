@@ -37,7 +37,7 @@ public class AdminController {
     private PaymentInstructionService paymentInstructionService;
     @Autowired
     private PromotionService promotionService;
-    @PutMapping("/abnormal-case/update")
+    @PostMapping("/abnormal-case/update")
     @Secured("ROLE_admin")
     public ResponseEntity<?> updateAbnormalCase(@RequestParam("file") MultipartFile file,
                                     @RequestParam("title") String title,
@@ -51,7 +51,7 @@ public class AdminController {
         return ResponseEntity.ok(abnormalCaseService.get());
     }
 
-    @PutMapping("/contact-info/update")
+    @PostMapping("/contact-info/update")
     @Secured("ROLE_admin")
     public ResponseEntity<?> updateContactInfo(@RequestBody ContactInfoUpdate contactInfoUpdate){
         return ResponseEntity.ok(contactInfoService.update(contactInfoUpdate));
@@ -76,7 +76,7 @@ public class AdminController {
         }
     }
 
-    @DeleteMapping("/customer/reset-customer-data")
+    @PostMapping("/customer/reset-customer-data")
     @Secured("ROLE_admin")
     public ResponseEntity<?> resetCustomerData(){
         customerService.resetCustomerData();
@@ -89,14 +89,14 @@ public class AdminController {
         return ResponseEntity.ok(newCustomerService.getAll());
     }
 
-    @DeleteMapping("/new-customer/delete-all")
+    @PostMapping("/new-customer/delete-all")
     @Secured("ROLE_admin")
     public ResponseEntity<?> deleteAllNewCustomer(){
         newCustomerService.deleteAll();
         return ResponseEntity.ok("Delete New Customer List Successfully!");
     }
 
-    @RequestMapping("/new-customer/download")
+    @PostMapping("/new-customer/download")
     @Secured("ROLE_admin")
     public ResponseEntity<?> downloadNewCustomerFile(){
         List<NewCustomer> customers = newCustomerService.getAll();
@@ -113,7 +113,7 @@ public class AdminController {
                 .body(new InputStreamResource(excelStream));
     }
 
-    @PutMapping("/payment-instruction/update")
+    @PostMapping("/payment-instruction/update")
     @Secured("ROLE_admin")
     public ResponseEntity<?> updatePaymentInstruction(@RequestParam("file") MultipartFile file,
                                     @RequestParam("title") String title,
@@ -134,13 +134,13 @@ public class AdminController {
         return ResponseEntity.ok(promotionService.create());
     }
 
-    @PutMapping("/promotion/update")
+    @PostMapping("/promotion/update")
     @Secured("ROLE_admin")
     public ResponseEntity<?> update(@RequestParam Integer id, @RequestBody PromotionUpdate promotionUpdate){
         return ResponseEntity.ok(promotionService.update(id, promotionUpdate));
     }
 
-    @DeleteMapping("/promotion/delete")
+    @PostMapping("/promotion/delete")
     @Secured("ROLE_admin")
     public void delete(@RequestParam Integer id){
         promotionService.delete(id);
