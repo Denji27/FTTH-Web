@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class SearchRequest {
-    private String phoneNumber;
-    private String account;
+    private String contactPhone;
+    private String ftthAccount;
 }

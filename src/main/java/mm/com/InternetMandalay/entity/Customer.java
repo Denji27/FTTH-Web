@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;;
 
 @Entity
 @Data
@@ -21,29 +20,33 @@ public class Customer implements Serializable {
     @Column(name = "ID")
     private Integer id;
 
-    @Column(name = "CUSTOMER_ID")
-    private String customerId;
+    @Column(name = "FTTH_ACCOUNT")
+    private String ftthAccount;
 
     @Column(name = "NAME")
-    private String name;
+    private String customerName;
 
-    @Column(name = "ACCOUNT", unique = true)
-    private String account;
+    @Column(name = "CUSTOMER_ADDRESS")
+    private String customerAddress;
 
-    @Column(name = "PHONE_NUMBER", unique = true)
-    private String phoneNumber;
+    @Column(name = "CONTACT_PHONE")
+    private String contactPhone;
 
-    @Column(name = "SERVICE_NAME")
-    private String serviceName;
+    @Column(name = "PRODUCT_CODE")
+    private String productCode;
 
-    @Column(name = "NUMBER_OF_PAID_MONTHS")
-    private Integer numberOfPaidMonths;
+    @Column(name = "MONTH_ADV")
+    private String monthAdv;
 
-    @Column(name = "EXTENSION_DATE")
-    @Temporal(TemporalType.DATE)
-    private Date extensionDate;
+    @Column(name = "MGT")
+    private String mgt;
 
-    @Column(name = "INTERNET_BLOCKING_DATE")
-    @Temporal(TemporalType.DATE)
-    private Date internetBlockingDate;
+    @Column(name = "D2D_NAME")
+    private String d2dName;
+
+    @Column(name = "D2d_PHONE_NUMBER")
+    private String d2dPhoneNumber;
+
+    @Column(name = "BILL_BLOCK")
+    private String billBlock;
 }

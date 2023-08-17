@@ -1,5 +1,6 @@
 package mm.com.InternetMandalay.controller;
 
+import mm.com.InternetMandalay.entity.PaymentRequest;
 import mm.com.InternetMandalay.request.NewCustomerRequest;
 import mm.com.InternetMandalay.request.SearchRequest;
 import mm.com.InternetMandalay.service.*;
@@ -23,6 +24,8 @@ public class UserController {
     private PaymentInstructionService paymentInstructionService;
     @Autowired
     private PromotionService promotionService;
+    @Autowired
+    private PaymentRequestService paymentRequestService;
 
     @GetMapping("/abnormal-case")
     public ResponseEntity<?> getAbnormalCase(){
@@ -44,6 +47,10 @@ public class UserController {
         return ResponseEntity.ok(newCustomerService.create(collaboratorCode,newCustomerRequest));
     }
 
+    @PostMapping("/payment/request")
+    public ResponseEntity<?> requestForPayment(@RequestBody PaymentRequest paymentRequest){
+        return ResponseEntity.ok(paymentRequestService.requestForPayment(paymentRequest));
+    }
     @GetMapping("/payment-instruction")
     public ResponseEntity<?> getPaymentInstruction(){
         return ResponseEntity.ok(paymentInstructionService.get());

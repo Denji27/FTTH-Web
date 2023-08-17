@@ -1,6 +1,7 @@
 package mm.com.InternetMandalay.service.impl;
 
 import mm.com.InternetMandalay.entity.Customer;
+import mm.com.InternetMandalay.exception.BadRequestException;
 import mm.com.InternetMandalay.exception.NotFoundException;
 import mm.com.InternetMandalay.repository.CustomerRepo;
 import mm.com.InternetMandalay.request.SearchRequest;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -24,6 +24,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void uploadData(InputStream excelFile) throws IOException{
+        if (customerRepo.findAll().size() > 0){
+            throw new BadRequestException("Please clear the database before import a new data set");
+        }
+
         Workbook workbook = new XSSFWorkbook(excelFile);
         Sheet sheet = workbook.getSheetAt(0);
         for (Row row : sheet){
@@ -31,14 +35,16 @@ public class CustomerServiceImpl implements CustomerService {
                 continue;
             }
             Customer customer = Customer.builder()
-                    .customerId(row.getCell(0).getStringCellValue())
-                    .name(row.getCell(1).getStringCellValue())
-                    .account(row.getCell(2).getStringCellValue())
-                    .phoneNumber(row.getCell(3).getStringCellValue())
-                    .serviceName(row.getCell(4).getStringCellValue())
-                    .numberOfPaidMonths((int) row.getCell(5).getNumericCellValue())
-                    .extensionDate((Date) row.getCell(6).getDateCellValue())
-                    .internetBlockingDate((Date) row.getCell(7).getDateCellValue())
+                    .ftthAccount(row.getCell(0).getStringCellValue())
+                    .customerName(row.getCell(1).getStringCellValue())
+                    .customerAddress(row.getCell(2).getStringCellValue())
+                    .contactPhone(row.getCell(3).getStringCellValue())
+                    .productCode(row.getCell(4).getStringCellValue())
+                    .monthAdv(row.getCell(5).getStringCellValue())
+                    .mgt(row.getCell(6).getStringCellValue())
+                    .d2dName(row.getCell(7).getStringCellValue())
+                    .d2dPhoneNumber(row.getCell(8).getStringCellValue())
+                    .billBlock(row.getCell(9).getStringCellValue())
                     .build();
             customerRepo.save(customer);
         }
@@ -47,55 +53,64 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDTO search(SearchRequest searchRequest) {
-        if(searchRequest.getAccount().isBlank() & searchRequest.getPhoneNumber().isBlank()){
+        if(searchRequest.getFtthAccount().isBlank() & searchRequest.getContactPhone().isBlank()){
             throw new NotFoundException("You haven't entered your account or phone number!");
         }
-        if(searchRequest.getAccount().isBlank() & !searchRequest.getPhoneNumber().isBlank()){
-            Customer customer = customerRepo.findCustomerByPhoneNumber(searchRequest.getPhoneNumber());
+        if(searchRequest.getFtthAccount().isBlank() & !searchRequest.getContactPhone().isBlank()){
+            Customer customer = customerRepo.findCustomerByContactPhone(searchRequest.getContactPhone());
             if (customer == null){
                 throw new NotFoundException("Your account is not exist");
             }
-            CustomerDTO cus = new CustomerDTO();
-            cus.setCustomerId(customer.getCustomerId());
-            cus.setName(customer.getName());
-            cus.setAccount(customer.getAccount());
-            cus.setServiceName(customer.getServiceName());
-            cus.setExtensionDate(customer.getExtensionDate());
-            cus.setPhoneNumber(customer.getPhoneNumber());
-            cus.setNumberOfPaidMonths(customer.getNumberOfPaidMonths());
-            cus.setInternetBlockingDate(customer.getInternetBlockingDate());
-            return cus;
+            CustomerDTO customerDto = CustomerDTO.builder()
+                    .ftthAccount(customer.getFtthAccount())
+                    .customerName(customer.getCustomerName())
+                    .customerAddress(customer.getCustomerAddress())
+                    .contactPhone(customer.getContactPhone())
+                    .productCode(customer.getProductCode())
+                    .monthAdv(customer.getMonthAdv())
+                    .mgt(customer.getMgt())
+                    .d2dName(customer.getD2dName())
+                    .d2dPhoneNumber(customer.getD2dPhoneNumber())
+                    .billBlock(customer.getBillBlock())
+                    .build();
+            return customerDto;
         }
-        if (!searchRequest.getAccount().isBlank() & searchRequest.getPhoneNumber().isBlank()){
-            Customer customer = customerRepo.findCustomerByAccount(searchRequest.getAccount());
+        if (!searchRequest.getFtthAccount().isBlank() & searchRequest.getContactPhone().isBlank()){
+            Customer customer = customerRepo.findCustomerByFtthAccount(searchRequest.getFtthAccount());
             if (customer == null){
                 throw new NotFoundException("Your account is not exist");
             }
-            CustomerDTO cus = new CustomerDTO();
-            cus.setCustomerId(customer.getCustomerId());
-            cus.setName(customer.getName());
-            cus.setAccount(customer.getAccount());
-            cus.setServiceName(customer.getServiceName());
-            cus.setExtensionDate(customer.getExtensionDate());
-            cus.setPhoneNumber(customer.getPhoneNumber());
-            cus.setNumberOfPaidMonths(customer.getNumberOfPaidMonths());
-            cus.setInternetBlockingDate(customer.getInternetBlockingDate());
-            return cus;
+            CustomerDTO customerDto = CustomerDTO.builder()
+                    .ftthAccount(customer.getFtthAccount())
+                    .customerName(customer.getCustomerName())
+                    .customerAddress(customer.getCustomerAddress())
+                    .contactPhone(customer.getContactPhone())
+                    .productCode(customer.getProductCode())
+                    .monthAdv(customer.getMonthAdv())
+                    .mgt(customer.getMgt())
+                    .d2dName(customer.getD2dName())
+                    .d2dPhoneNumber(customer.getD2dPhoneNumber())
+                    .billBlock(customer.getBillBlock())
+                    .build();
+            return customerDto;
         }
-        Customer customer = customerRepo.findCustomerByAccountAndPhoneNumber(searchRequest.getAccount(), searchRequest.getPhoneNumber());
+        Customer customer = customerRepo.findCustomerByFtthAccountAndContactPhone(searchRequest.getFtthAccount(), searchRequest.getContactPhone());
         if (customer == null){
             throw new NotFoundException("Your account is not exist");
         }
-        CustomerDTO cus = new CustomerDTO();
-        cus.setCustomerId(customer.getCustomerId());
-        cus.setName(customer.getName());
-        cus.setAccount(customer.getAccount());
-        cus.setServiceName(customer.getServiceName());
-        cus.setExtensionDate(customer.getExtensionDate());
-        cus.setPhoneNumber(customer.getPhoneNumber());
-        cus.setNumberOfPaidMonths(customer.getNumberOfPaidMonths());
-        cus.setInternetBlockingDate(customer.getInternetBlockingDate());
-        return cus;
+        CustomerDTO customerDto = CustomerDTO.builder()
+                .ftthAccount(customer.getFtthAccount())
+                .customerName(customer.getCustomerName())
+                .customerAddress(customer.getCustomerAddress())
+                .contactPhone(customer.getContactPhone())
+                .productCode(customer.getProductCode())
+                .monthAdv(customer.getMonthAdv())
+                .mgt(customer.getMgt())
+                .d2dName(customer.getD2dName())
+                .d2dPhoneNumber(customer.getD2dPhoneNumber())
+                .billBlock(customer.getBillBlock())
+                .build();
+        return customerDto;
     }
 
     @Override

@@ -64,7 +64,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
         http.csrf().disable().cors()
-                .and().authorizeRequests().antMatchers("/user**").permitAll()
+                .and().authorizeRequests().antMatchers("/user/**").permitAll()
                 .and().authorizeRequests().anyRequest().authenticated();
 //                .and().authorizeRequests().anyRequest().permitAll();
 

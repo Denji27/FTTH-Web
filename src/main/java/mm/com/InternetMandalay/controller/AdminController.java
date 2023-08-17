@@ -1,6 +1,7 @@
 package mm.com.InternetMandalay.controller;
 
 import mm.com.InternetMandalay.entity.NewCustomer;
+import mm.com.InternetMandalay.entity.PaymentRequest;
 import mm.com.InternetMandalay.request.ContactInfoUpdate;
 import mm.com.InternetMandalay.request.PromotionUpdate;
 import mm.com.InternetMandalay.service.*;
@@ -20,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-//@CrossOrigin
+@Secured("ROLE_admin")
 @CrossOrigin(origins = "*")
 @RequestMapping("/admin")
 public class AdminController {
@@ -38,8 +39,10 @@ public class AdminController {
     private PaymentInstructionService paymentInstructionService;
     @Autowired
     private PromotionService promotionService;
+    @Autowired
+    private PaymentRequestService paymentRequestService;
+
     @PostMapping("/abnormal-case/update")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> updateAbnormalCase(@RequestParam("file") MultipartFile file,
                                     @RequestParam("title") String title,
                                     @RequestParam("description") String description)
@@ -47,25 +50,21 @@ public class AdminController {
         return ResponseEntity.ok(abnormalCaseService.update(file, title, description));
     }
     @GetMapping("/abnormal-case/get")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> getAbnormalCase(){
         return ResponseEntity.ok(abnormalCaseService.get());
     }
 
     @PostMapping("/contact-info/update")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> updateContactInfo(@RequestBody ContactInfoUpdate contactInfoUpdate){
         return ResponseEntity.ok(contactInfoService.update(contactInfoUpdate));
     }
 
     @GetMapping("/contact-info/get")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> getContactInfo(){
         return ResponseEntity.ok(contactInfoService.get());
     }
 
     @PostMapping("/customer/upload")
-    @Secured("ROLE_admin")
     public ResponseEntity<String> uploadCustomerExcel(@RequestParam("file") MultipartFile file){
         try {
             customerService.uploadData(file.getInputStream());
@@ -78,33 +77,29 @@ public class AdminController {
     }
 
     @PostMapping("/customer/reset-customer-data")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> resetCustomerData(){
         customerService.resetCustomerData();
         return ResponseEntity.ok("All Customer Data has been cleared!");
     }
 
     @GetMapping("/new-customer/get-all")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> getAllNewCustomers(){
         return ResponseEntity.ok(newCustomerService.getAll());
     }
 
     @PostMapping("/new-customer/delete-all")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> deleteAllNewCustomer(){
         newCustomerService.deleteAll();
         return ResponseEntity.ok("Delete New Customer List Successfully!");
     }
 
-    @PostMapping("/new-customer/download")
-    @Secured("ROLE_admin")
+    @GetMapping("/new-customer/download")
     public ResponseEntity<?> downloadNewCustomerFile(){
         List<NewCustomer> customers = newCustomerService.getAll();
         ByteArrayInputStream excelStream = excelUtils.newCustomersToExcelFile(customers);
         HttpHeaders headers = new HttpHeaders();
         headers.add(
-                HttpHeaders.CONTENT_DISPOSITION,
+                "Content-Disposition",
                 "attachment; filename=customer.xlsx"
         );
         return ResponseEntity
@@ -115,7 +110,6 @@ public class AdminController {
     }
 
     @PostMapping("/payment-instruction/update")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> updatePaymentInstruction(@RequestParam("file") MultipartFile file,
                                     @RequestParam("title") String title,
                                     @RequestParam("description") String description)
@@ -124,32 +118,53 @@ public class AdminController {
     }
 
     @GetMapping("/payment-instruction/get")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> getPaymentInstruction(){
         return ResponseEntity.ok(paymentInstructionService.get());
     }
 
     @PostMapping("/promotion/create")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> create(){
         return ResponseEntity.ok(promotionService.create());
     }
 
     @PostMapping("/promotion/update")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> update(@RequestParam Integer id, @RequestBody PromotionUpdate promotionUpdate){
         return ResponseEntity.ok(promotionService.update(id, promotionUpdate));
     }
 
     @PostMapping("/promotion/delete")
-    @Secured("ROLE_admin")
     public void delete(@RequestParam Integer id){
         promotionService.delete(id);
     }
 
     @GetMapping("/promotion/get-all")
-    @Secured("ROLE_admin")
     public ResponseEntity<?> getAll(){
         return ResponseEntity.ok(promotionService.getAll());
+    }
+
+    @GetMapping("/payment-requests/get-all")
+    public ResponseEntity<?> getAllPaymentRequestOfCustomer(){
+        return ResponseEntity.ok(paymentRequestService.getAllPaymentRequestOfCustomers());
+    }
+
+    @PostMapping("/payment-requests/clear")
+    public ResponseEntity<?> clearAllPaymentRequests(){
+        paymentRequestService.deleteAllRequest();
+        return ResponseEntity.ok("All payment requests have been cleared, there is no data about payment request in system anymore");
+    }
+
+    @GetMapping("/payment-requests/download")
+    public ResponseEntity<?> downloadPaymentRequestList() {
+        List<PaymentRequest> paymentRequests = paymentRequestService.getAllPaymentRequestOfCustomers();
+        ByteArrayInputStream excelStream = excelUtils.paymentRequestListToExcelFile(paymentRequests);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(
+                "Content-Disposition",
+                "attachment; filename=PaymentRequest.xlsx"
+        );
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                .body(new InputStreamResource(excelStream));
     }
 }

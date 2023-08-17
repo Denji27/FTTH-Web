@@ -1,6 +1,5 @@
 package mm.com.InternetMandalay.service;
 
-import mm.com.InternetMandalay.entity.Customer;
 import mm.com.InternetMandalay.request.SearchRequest;
 import mm.com.InternetMandalay.response.CustomerDTO;
 

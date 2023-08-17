@@ -15,10 +15,4 @@ public class CustomExceptionHandler{
     public ErrorResponse handleBadRequestException(BadRequestException e, WebRequest request){
         return new ErrorResponse(ErrorCode.BAD_REQUEST, e.getMessage());
     }
-
-    @ExceptionHandler(LoginException.class)
-    public ErrorResponse handleLoginException(LoginException e, WebRequest request){
-        return new ErrorResponse(ErrorCode.LOGIN_EXCEPTION, e.getMessage());
-    }
-
 }

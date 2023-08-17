@@ -1,6 +1,7 @@
 package mm.com.InternetMandalay.utils;
 
 import mm.com.InternetMandalay.entity.NewCustomer;
+import mm.com.InternetMandalay.entity.PaymentRequest;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -49,6 +50,34 @@ public class ExcelUtils {
                 throw new RuntimeException(e);
             }
         }
+    }
 
+    public ByteArrayInputStream paymentRequestListToExcelFile(List<PaymentRequest> paymentRequests){
+        Workbook workbook = new XSSFWorkbook();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            Sheet sheet = workbook.createSheet("Payment Request");
+            Row headerRow = sheet.createRow(0);
+            headerRow.createCell(0).setCellValue("FTTH_ACCOUNT");
+            headerRow.createCell(1).setCellValue("CONTACT_phone");
+            int rowNum = 1;
+            for (PaymentRequest paymentRequest : paymentRequests){
+                Row row = sheet.createRow(rowNum);
+                row.createCell(0).setCellValue(paymentRequest.getFtthAccount());
+                row.createCell(1).setCellValue(paymentRequest.getContactPhone());
+                rowNum++;
+            }
+            workbook.write(outputStream);
+            return new ByteArrayInputStream(outputStream.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                workbook.close();
+                outputStream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
