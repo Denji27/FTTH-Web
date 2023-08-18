@@ -15,9 +15,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "ABNORMAL_CASE")
+@Table(name = "PAYMENT_REQUEST")
 public class PaymentRequest {
     @Id
+    @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -30,8 +31,4 @@ public class PaymentRequest {
     @CreationTimestamp
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "LAST_UPDATE_AT")
-    private LocalDateTime lastUpdateAt;
 }

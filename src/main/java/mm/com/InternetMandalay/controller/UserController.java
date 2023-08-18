@@ -2,7 +2,6 @@ package mm.com.InternetMandalay.controller;
 
 import mm.com.InternetMandalay.entity.PaymentRequest;
 import mm.com.InternetMandalay.request.NewCustomerRequest;
-import mm.com.InternetMandalay.request.SearchRequest;
 import mm.com.InternetMandalay.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,8 +37,8 @@ public class UserController {
     }
 
     @GetMapping("/customer/search")
-    public ResponseEntity<?> searchCustomer(@RequestBody SearchRequest searchRequest){
-        return ResponseEntity.ok(customerService.search(searchRequest));
+    public ResponseEntity<?> searchCustomer(@RequestParam String contactPhone, @RequestParam String ftthAccount){
+        return ResponseEntity.ok(customerService.search(contactPhone, ftthAccount));
     }
 
     @PostMapping("/new-customer/register")
@@ -47,10 +46,16 @@ public class UserController {
         return ResponseEntity.ok(newCustomerService.create(collaboratorCode,newCustomerRequest));
     }
 
-    @PostMapping("/payment/request")
-    public ResponseEntity<?> requestForPayment(@RequestBody PaymentRequest paymentRequest){
-        return ResponseEntity.ok(paymentRequestService.requestForPayment(paymentRequest));
+    @PostMapping("/payment-request/submit")
+    public ResponseEntity<?> submit(@RequestParam String contactPhone, @RequestParam String ftthAccount){
+        return ResponseEntity.ok(paymentRequestService.submitPaymentReuqest(contactPhone, ftthAccount));
     }
+
+    @PostMapping("/payment-request/check")
+    public ResponseEntity<?> checkInformation(@RequestParam String contactPhone, @RequestParam String ftthAccount){
+        return ResponseEntity.ok(paymentRequestService.checkCustomerInformation(contactPhone, ftthAccount));
+    }
+
     @GetMapping("/payment-instruction")
     public ResponseEntity<?> getPaymentInstruction(){
         return ResponseEntity.ok(paymentInstructionService.get());

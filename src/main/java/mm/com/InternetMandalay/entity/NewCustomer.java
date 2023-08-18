@@ -42,8 +42,5 @@ public class NewCustomer implements Serializable {
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "LAST_UPDATE_AT")
-    private LocalDateTime lastUpdateAt;
 
 }

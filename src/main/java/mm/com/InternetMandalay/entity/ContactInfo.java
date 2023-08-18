@@ -25,6 +25,6 @@ public class ContactInfo implements Serializable {
     @Column(name = "HOTLINE")
     private String hotline;
 
-    @Column(name = "OTHER_INFORMATION")
+    @Column(name = "OTHER_INFORMATION", columnDefinition = "TEXT")
     private String otherInfos;
 }

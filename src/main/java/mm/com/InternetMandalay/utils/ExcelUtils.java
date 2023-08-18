@@ -25,8 +25,8 @@ public class ExcelUtils {
             headerRow.createCell(1).setCellValue("PHONE_NUMBER");
             headerRow.createCell(2).setCellValue("SERVICE_NAME");
             headerRow.createCell(3).setCellValue("ADDRESS");
-            headerRow.createCell(4).setCellValue("CREATED_AT");
-            headerRow.createCell(5).setCellValue("LAST_UPDATE_AT");
+            headerRow.createCell(4).setCellValue("COLLABORATOR_CODE");
+            headerRow.createCell(5).setCellValue("CREATED_AT");
             int rowNum = 1;
             for (NewCustomer newCustomer : newCustomers){
                 Row row = sheet.createRow(rowNum);
@@ -34,8 +34,8 @@ public class ExcelUtils {
                 row.createCell(1).setCellValue(newCustomer.getPhoneNumber());
                 row.createCell(2).setCellValue(newCustomer.getServiceName());
                 row.createCell(3).setCellValue(newCustomer.getAddress());
-                row.createCell(4).setCellValue(newCustomer.getCreatedAt());
-                row.createCell(5).setCellValue(newCustomer.getLastUpdateAt());
+                row.createCell(4).setCellValue(newCustomer.getCollaboratorCode());
+                row.createCell(5).setCellValue(newCustomer.getCreatedAt().toString());
                 rowNum++;
             }
             workbook.write(outputStream);
@@ -60,11 +60,13 @@ public class ExcelUtils {
             Row headerRow = sheet.createRow(0);
             headerRow.createCell(0).setCellValue("FTTH_ACCOUNT");
             headerRow.createCell(1).setCellValue("CONTACT_phone");
+            headerRow.createCell(2).setCellValue("CREATED_AT");
             int rowNum = 1;
             for (PaymentRequest paymentRequest : paymentRequests){
                 Row row = sheet.createRow(rowNum);
                 row.createCell(0).setCellValue(paymentRequest.getFtthAccount());
                 row.createCell(1).setCellValue(paymentRequest.getContactPhone());
+                row.createCell(2).setCellValue(paymentRequest.getCreatedAt().toString());
                 rowNum++;
             }
             workbook.write(outputStream);

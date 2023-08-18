@@ -4,7 +4,6 @@ import mm.com.InternetMandalay.entity.Customer;
 import mm.com.InternetMandalay.exception.BadRequestException;
 import mm.com.InternetMandalay.exception.NotFoundException;
 import mm.com.InternetMandalay.repository.CustomerRepo;
-import mm.com.InternetMandalay.request.SearchRequest;
 import mm.com.InternetMandalay.response.CustomerDTO;
 import mm.com.InternetMandalay.service.CustomerService;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -52,65 +53,76 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerDTO search(SearchRequest searchRequest) {
-        if(searchRequest.getFtthAccount().isBlank() & searchRequest.getContactPhone().isBlank()){
+    public List<CustomerDTO> search(String contactPhone, String ftthAccount) {
+        List<CustomerDTO> customerDTOList = new ArrayList<>();
+        if(ftthAccount.isBlank() & contactPhone.isBlank()){
             throw new NotFoundException("You haven't entered your account or phone number!");
         }
-        if(searchRequest.getFtthAccount().isBlank() & !searchRequest.getContactPhone().isBlank()){
-            Customer customer = customerRepo.findCustomerByContactPhone(searchRequest.getContactPhone());
-            if (customer == null){
+        if(ftthAccount.isBlank() & !contactPhone.isBlank()){
+            List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
+            if (customers.size() == 0){
                 throw new NotFoundException("Your account is not exist");
             }
-            CustomerDTO customerDto = CustomerDTO.builder()
-                    .ftthAccount(customer.getFtthAccount())
-                    .customerName(customer.getCustomerName())
-                    .customerAddress(customer.getCustomerAddress())
-                    .contactPhone(customer.getContactPhone())
-                    .productCode(customer.getProductCode())
-                    .monthAdv(customer.getMonthAdv())
-                    .mgt(customer.getMgt())
-                    .d2dName(customer.getD2dName())
-                    .d2dPhoneNumber(customer.getD2dPhoneNumber())
-                    .billBlock(customer.getBillBlock())
-                    .build();
-            return customerDto;
+            for (Customer customer : customers){
+                CustomerDTO customerDto = CustomerDTO.builder()
+                        .ftthAccount(customer.getFtthAccount())
+                        .customerName(customer.getCustomerName())
+                        .customerAddress(customer.getCustomerAddress())
+                        .contactPhone(customer.getContactPhone())
+                        .productCode(customer.getProductCode())
+                        .monthAdv(customer.getMonthAdv())
+                        .mgt(customer.getMgt())
+                        .d2dName(customer.getD2dName())
+                        .d2dPhoneNumber(customer.getD2dPhoneNumber())
+                        .billBlock(customer.getBillBlock())
+                        .build();
+                customerDTOList.add(customerDto);
+            }
+
+            return customerDTOList;
         }
-        if (!searchRequest.getFtthAccount().isBlank() & searchRequest.getContactPhone().isBlank()){
-            Customer customer = customerRepo.findCustomerByFtthAccount(searchRequest.getFtthAccount());
-            if (customer == null){
+        if (!ftthAccount.isBlank() & contactPhone.isBlank()){
+            List<Customer> customers = customerRepo.findCustomerByFtthAccount(ftthAccount);
+            if (customers.size() == 0){
                 throw new NotFoundException("Your account is not exist");
             }
-            CustomerDTO customerDto = CustomerDTO.builder()
-                    .ftthAccount(customer.getFtthAccount())
-                    .customerName(customer.getCustomerName())
-                    .customerAddress(customer.getCustomerAddress())
-                    .contactPhone(customer.getContactPhone())
-                    .productCode(customer.getProductCode())
-                    .monthAdv(customer.getMonthAdv())
-                    .mgt(customer.getMgt())
-                    .d2dName(customer.getD2dName())
-                    .d2dPhoneNumber(customer.getD2dPhoneNumber())
-                    .billBlock(customer.getBillBlock())
-                    .build();
-            return customerDto;
+            for (Customer customer : customers){
+                CustomerDTO customerDto = CustomerDTO.builder()
+                        .ftthAccount(customer.getFtthAccount())
+                        .customerName(customer.getCustomerName())
+                        .customerAddress(customer.getCustomerAddress())
+                        .contactPhone(customer.getContactPhone())
+                        .productCode(customer.getProductCode())
+                        .monthAdv(customer.getMonthAdv())
+                        .mgt(customer.getMgt())
+                        .d2dName(customer.getD2dName())
+                        .d2dPhoneNumber(customer.getD2dPhoneNumber())
+                        .billBlock(customer.getBillBlock())
+                        .build();
+                customerDTOList.add(customerDto);
+            }
+            return customerDTOList;
         }
-        Customer customer = customerRepo.findCustomerByFtthAccountAndContactPhone(searchRequest.getFtthAccount(), searchRequest.getContactPhone());
-        if (customer == null){
+        List<Customer> customers = customerRepo.findCustomerByFtthAccountAndContactPhone(ftthAccount, contactPhone);
+        if (customers.size() == 0){
             throw new NotFoundException("Your account is not exist");
         }
-        CustomerDTO customerDto = CustomerDTO.builder()
-                .ftthAccount(customer.getFtthAccount())
-                .customerName(customer.getCustomerName())
-                .customerAddress(customer.getCustomerAddress())
-                .contactPhone(customer.getContactPhone())
-                .productCode(customer.getProductCode())
-                .monthAdv(customer.getMonthAdv())
-                .mgt(customer.getMgt())
-                .d2dName(customer.getD2dName())
-                .d2dPhoneNumber(customer.getD2dPhoneNumber())
-                .billBlock(customer.getBillBlock())
-                .build();
-        return customerDto;
+        for (Customer customer : customers){
+            CustomerDTO customerDto = CustomerDTO.builder()
+                    .ftthAccount(customer.getFtthAccount())
+                    .customerName(customer.getCustomerName())
+                    .customerAddress(customer.getCustomerAddress())
+                    .contactPhone(customer.getContactPhone())
+                    .productCode(customer.getProductCode())
+                    .monthAdv(customer.getMonthAdv())
+                    .mgt(customer.getMgt())
+                    .d2dName(customer.getD2dName())
+                    .d2dPhoneNumber(customer.getD2dPhoneNumber())
+                    .billBlock(customer.getBillBlock())
+                    .build();
+            customerDTOList.add(customerDto);
+        }
+        return customerDTOList;
     }
 
     @Override

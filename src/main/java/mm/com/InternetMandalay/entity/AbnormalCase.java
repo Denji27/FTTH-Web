@@ -26,6 +26,6 @@ public class AbnormalCase implements Serializable {
     @Column(name = "IMAGE", columnDefinition = "MEDIUMBLOB")
     private String image;
 
-    @Column(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION", columnDefinition = "TEXT")
     private String description;
 }

@@ -7,6 +7,7 @@ import mm.com.InternetMandalay.request.PromotionUpdate;
 import mm.com.InternetMandalay.service.*;
 import mm.com.InternetMandalay.utils.ExcelUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -98,15 +99,17 @@ public class AdminController {
         List<NewCustomer> customers = newCustomerService.getAll();
         ByteArrayInputStream excelStream = excelUtils.newCustomersToExcelFile(customers);
         HttpHeaders headers = new HttpHeaders();
+        ByteArrayResource resource = new ByteArrayResource(excelStream.readAllBytes());
         headers.add(
                 "Content-Disposition",
                 "attachment; filename=customer.xlsx"
         );
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-                .body(new InputStreamResource(excelStream));
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+//        return ResponseEntity
+//                .ok()
+//                .headers(headers)
+//                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+//                .body(new InputStreamResource(excelStream));
     }
 
     @PostMapping("/payment-instruction/update")
@@ -158,13 +161,15 @@ public class AdminController {
         List<PaymentRequest> paymentRequests = paymentRequestService.getAllPaymentRequestOfCustomers();
         ByteArrayInputStream excelStream = excelUtils.paymentRequestListToExcelFile(paymentRequests);
         HttpHeaders headers = new HttpHeaders();
+        ByteArrayResource resource = new ByteArrayResource(excelStream.readAllBytes());
         headers.add(
                 "Content-Disposition",
                 "attachment; filename=PaymentRequest.xlsx"
         );
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-                .body(new InputStreamResource(excelStream));
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+//        return ResponseEntity.ok()
+//                .headers(headers)
+//                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+//                .body(new InputStreamResource(excelStream));
     }
 }
