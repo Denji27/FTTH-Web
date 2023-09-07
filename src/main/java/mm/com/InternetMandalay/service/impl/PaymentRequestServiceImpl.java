@@ -44,7 +44,10 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     }
 
     @Override
-    public List<CustomerDTO> checkCustomerInformation(String contactPhone, String ftthAccount) {
+    public List<CustomerDTO> checkCustomerInformation(String contactPhone, String ftthAccount, String otp) {
+        if (!otp.equals("12345") || otp.isBlank()){
+            throw new BadRequestException("The OTP is invalid");
+        }
         List<CustomerDTO> customerDTOList = new ArrayList<>();
         if(ftthAccount.isBlank() & contactPhone.isBlank()){
             throw new NotFoundException("You haven't entered your account or phone number!");
@@ -62,7 +65,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                         .contactPhone(customer.getContactPhone())
                         .productCode(customer.getProductCode())
                         .monthAdv(customer.getMonthAdv())
-                        .mgt(customer.getMgt())
+                        .totalMoney(customer.getTotalMoney())
                         .d2dName(customer.getD2dName())
                         .d2dPhoneNumber(customer.getD2dPhoneNumber())
                         .billBlock(customer.getBillBlock())
@@ -85,7 +88,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                         .contactPhone(customer.getContactPhone())
                         .productCode(customer.getProductCode())
                         .monthAdv(customer.getMonthAdv())
-                        .mgt(customer.getMgt())
+                        .totalMoney(customer.getTotalMoney())
                         .d2dName(customer.getD2dName())
                         .d2dPhoneNumber(customer.getD2dPhoneNumber())
                         .billBlock(customer.getBillBlock())
@@ -106,7 +109,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                     .contactPhone(customer.getContactPhone())
                     .productCode(customer.getProductCode())
                     .monthAdv(customer.getMonthAdv())
-                    .mgt(customer.getMgt())
+                    .totalMoney(customer.getTotalMoney())
                     .d2dName(customer.getD2dName())
                     .d2dPhoneNumber(customer.getD2dPhoneNumber())
                     .billBlock(customer.getBillBlock())
@@ -114,6 +117,18 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
             customerDTOList.add(customerDto);
         }
         return customerDTOList;
+    }
+
+    @Override
+    public String getOtp(String phoneNumber) {
+        if (phoneNumber.isBlank()){
+            throw new NotFoundException("You haven't entered phone number yet!");
+        }
+        List<Customer> customers = customerRepo.findCustomerByContactPhone(phoneNumber);
+        if (customers.size() == 0){
+            throw new NotFoundException("Phone number is not included in our system!");
+        }
+        return "The otp has been sent to your phone number, please check it and fill it to the blank for OTP";
     }
 
     @Override

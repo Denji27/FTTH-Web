@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface CustomerService {
     void uploadData(InputStream excelFile) throws IOException;
-    List<CustomerDTO>  search(String contactPhone, String ftthAccount);
+    List<CustomerDTO> search(String contactPhone, String ftthAccount, String otp);
+    String getOtp(String contactPhone);
     void resetCustomerData();
 }

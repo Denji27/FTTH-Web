@@ -38,8 +38,8 @@ public class Customer implements Serializable {
     @Column(name = "MONTH_ADV")
     private String monthAdv;
 
-    @Column(name = "MGT")
-    private String mgt;
+    @Column(name = "TOTAL_MONEY")
+    private String totalMoney;
 
     @Column(name = "D2D_NAME")
     private String d2dName;

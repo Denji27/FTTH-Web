@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface PaymentRequestService {
     public String submitPaymentReuqest(String contactPhone, String ftthAccount);
-    public List<CustomerDTO> checkCustomerInformation(String contactPhone, String ftthAccount);
+    public List<CustomerDTO> checkCustomerInformation(String contactPhone, String ftthAccount, String otp);
+    String getOtp(String phoneNumber);
     public List<PaymentRequest> getAllPaymentRequestOfCustomers();
     public void deleteAllRequest();
 

@@ -1,7 +1,9 @@
 package mm.com.InternetMandalay.controller;
 
+import mm.com.InternetMandalay.entity.AbnormalCaseImage;
 import mm.com.InternetMandalay.entity.NewCustomer;
 import mm.com.InternetMandalay.entity.PaymentRequest;
+import mm.com.InternetMandalay.entity.RepairRequest;
 import mm.com.InternetMandalay.request.ContactInfoUpdate;
 import mm.com.InternetMandalay.request.PromotionUpdate;
 import mm.com.InternetMandalay.service.*;
@@ -39,10 +41,19 @@ public class AdminController {
     @Autowired
     private PaymentInstructionService paymentInstructionService;
     @Autowired
-    private PromotionService promotionService;
-    @Autowired
     private PaymentRequestService paymentRequestService;
+    @Autowired
+    private AbnormalCaseImageService abImageService;
+    @Autowired
+    private PaymentInstructionImageService piImageService;
+    @Autowired
+    private PromotionImageService promotionImageService;
+    @Autowired
+    private RepairRequestService repairRequestService;
+    @Autowired
+    private BannerService bannerService;
 
+    /** Abnormal Case */
     @PostMapping("/abnormal-case/update")
     public ResponseEntity<?> updateAbnormalCase(@RequestParam("file") MultipartFile file,
                                     @RequestParam("title") String title,
@@ -55,6 +66,12 @@ public class AdminController {
         return ResponseEntity.ok(abnormalCaseService.get());
     }
 
+    @PostMapping("/abnormal-case-image/upload")
+    public ResponseEntity<?> uploadAbImage(@RequestParam("file") MultipartFile file){
+        return ResponseEntity.ok(abImageService.uploadImage(file));
+    }
+
+    /** Contact Info */
     @PostMapping("/contact-info/update")
     public ResponseEntity<?> updateContactInfo(@RequestBody ContactInfoUpdate contactInfoUpdate){
         return ResponseEntity.ok(contactInfoService.update(contactInfoUpdate));
@@ -65,6 +82,7 @@ public class AdminController {
         return ResponseEntity.ok(contactInfoService.get());
     }
 
+    /** Customer */
     @PostMapping("/customer/upload")
     public ResponseEntity<String> uploadCustomerExcel(@RequestParam("file") MultipartFile file){
         try {
@@ -83,6 +101,7 @@ public class AdminController {
         return ResponseEntity.ok("All Customer Data has been cleared!");
     }
 
+    /** New Customer */
     @GetMapping("/new-customer/get-all")
     public ResponseEntity<?> getAllNewCustomers(){
         return ResponseEntity.ok(newCustomerService.getAll());
@@ -112,6 +131,7 @@ public class AdminController {
 //                .body(new InputStreamResource(excelStream));
     }
 
+    /** Payment Instruction */
     @PostMapping("/payment-instruction/update")
     public ResponseEntity<?> updatePaymentInstruction(@RequestParam("file") MultipartFile file,
                                     @RequestParam("title") String title,
@@ -125,26 +145,28 @@ public class AdminController {
         return ResponseEntity.ok(paymentInstructionService.get());
     }
 
-    @PostMapping("/promotion/create")
-    public ResponseEntity<?> create(){
-        return ResponseEntity.ok(promotionService.create());
+    @PostMapping("/payment-instruction-image/upload")
+    public ResponseEntity<?> uploadPiImage(@RequestParam("file") MultipartFile file){
+        return ResponseEntity.ok(piImageService.uploadImage(file));
     }
 
-    @PostMapping("/promotion/update")
-    public ResponseEntity<?> update(@RequestParam Integer id, @RequestBody PromotionUpdate promotionUpdate){
-        return ResponseEntity.ok(promotionService.update(id, promotionUpdate));
+    /** Promotion */
+    @PostMapping("/promotion-image/upload")
+    public ResponseEntity<?> uploadProImage(@RequestParam("file") MultipartFile file){
+        return ResponseEntity.ok(promotionImageService.upload(file));
     }
 
-    @PostMapping("/promotion/delete")
-    public void delete(@RequestParam Integer id){
-        promotionService.delete(id);
+    @PostMapping("/promotion-image/delete")
+    public void deleteProImage(@RequestParam Integer id){
+        promotionImageService.delete(id);
     }
 
-    @GetMapping("/promotion/get-all")
-    public ResponseEntity<?> getAll(){
-        return ResponseEntity.ok(promotionService.getAll());
+    @GetMapping("/promotion-image/get-all")
+    public ResponseEntity<?> getAllProImage(){
+        return ResponseEntity.ok(promotionImageService.getAll());
     }
 
+    /** Payment Request */
     @GetMapping("/payment-requests/get-all")
     public ResponseEntity<?> getAllPaymentRequestOfCustomer(){
         return ResponseEntity.ok(paymentRequestService.getAllPaymentRequestOfCustomers());
@@ -171,5 +193,46 @@ public class AdminController {
 //                .headers(headers)
 //                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
 //                .body(new InputStreamResource(excelStream));
+    }
+
+    /** Banner */
+    @PostMapping("/banner/upload")
+    public ResponseEntity<?> uploadBanner(@RequestParam("file") MultipartFile file){
+        return ResponseEntity.ok(bannerService.upload(file));
+    }
+
+    @PostMapping("/banner/delete")
+    public void deleteBanner(@RequestParam Integer id){
+        bannerService.delete(id);
+    }
+
+    @GetMapping("/banner/get-all")
+    public ResponseEntity<?> getAllBanner(){
+        return ResponseEntity.ok(bannerService.getAll());
+    }
+
+    /** Repair Request */
+    @GetMapping("/repair-request/get-all")
+    public ResponseEntity<?> getAllRepairRequests(){
+        return ResponseEntity.ok(repairRequestService.getAllRepairRequest());
+    }
+
+    @PostMapping("/repair-request/clear")
+    public ResponseEntity<?> clearAllRepairRequest(){
+        repairRequestService.deleteAllRequest();
+        return ResponseEntity.ok("All repair requests have been cleared, there is no data about repair request in system anymore");
+    }
+
+    @GetMapping("/repair-request/download")
+    public ResponseEntity<?> downloadRepairRequestList(){
+        List<RepairRequest> repairRequests = repairRequestService.getAllRepairRequest();
+        ByteArrayInputStream excelStream = excelUtils.repairRequestListToExcelFile(repairRequests);
+        HttpHeaders headers = new HttpHeaders();
+        ByteArrayResource resource = new ByteArrayResource(excelStream.readAllBytes());
+        headers.add(
+                "Content-Disposition",
+                "attachment; filename=RepairRequest.xlsx"
+        );
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 }

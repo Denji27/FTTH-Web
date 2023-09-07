@@ -1,98 +1,50 @@
 package mm.com.InternetMandalay.service.impl;
 
 import mm.com.InternetMandalay.entity.Customer;
+import mm.com.InternetMandalay.entity.RepairRequest;
 import mm.com.InternetMandalay.exception.BadRequestException;
 import mm.com.InternetMandalay.exception.NotFoundException;
 import mm.com.InternetMandalay.repository.CustomerRepo;
+import mm.com.InternetMandalay.repository.RepairRequestRepo;
 import mm.com.InternetMandalay.response.CustomerDTO;
-import mm.com.InternetMandalay.service.CustomerService;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import mm.com.InternetMandalay.service.RepairRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class CustomerServiceImpl implements CustomerService {
+public class RepairRequestServiceImpl implements RepairRequestService {
+    @Autowired
+    private RepairRequestRepo repairRequestRepo;
+
     @Autowired
     private CustomerRepo customerRepo;
 
     @Override
-    public void uploadData(InputStream excelFile) throws IOException{
-        if (customerRepo.findAll().size() > 0){
-            throw new BadRequestException("Please clear the database before import a new data set");
+    public String submitRepairRequest(String contactPhone, String ftthAccount) {
+        if(contactPhone.isBlank() & ftthAccount.isBlank()){
+            throw new BadRequestException("You haven't enter information yet, please enter both ftthAccount and contactPhone before submitting!");
         }
-
-        Workbook workbook = new XSSFWorkbook(excelFile);
-        Sheet sheet = workbook.getSheetAt(0);
-        for (Row row : sheet){
-            if (row.getRowNum() == 0){
-                continue;
-            }
-            Customer customer = new Customer();
-            customer.setFtthAccount(row.getCell(0).getStringCellValue());
-            if (row.getCell(1) == null){
-                customer.setCustomerName("");
-            }else {
-                customer.setCustomerName(row.getCell(1).getStringCellValue());
-            }
-            if (row.getCell(2) == null){
-                customer.setCustomerAddress("");
-            }else {
-                customer.setCustomerAddress(row.getCell(2).getStringCellValue());
-            }
-            customer.setContactPhone(row.getCell(3).getStringCellValue());
-            if (row.getCell(4) == null){
-                customer.setProductCode("");
-            } else {
-                customer.setProductCode(row.getCell(4).getStringCellValue());
-            }
-            if (row.getCell(5) == null){
-                customer.setMonthAdv("");
-            } else {
-                customer.setMonthAdv(row.getCell(5).getStringCellValue());
-            }
-            if (row.getCell(6) == null){
-                customer.setTotalMoney("");
-            } else {
-                CellType totalMoneyType = row.getCell(6).getCellType();
-                if (totalMoneyType == CellType.STRING){
-                    customer.setTotalMoney(row.getCell(6).getStringCellValue());
-                }
-                if (totalMoneyType == CellType.NUMERIC){
-                    Integer value = (int) row.getCell(6).getNumericCellValue();
-                    customer.setTotalMoney(value.toString());
-                }
-            }
-            if (row.getCell(7) == null){
-                customer.setD2dName("");
-            }else {
-                customer.setD2dName(row.getCell(7).getStringCellValue());
-            }
-            if (row.getCell(8) == null){
-                customer.setD2dPhoneNumber("");
-            } else{
-                customer.setD2dPhoneNumber(row.getCell(8).getStringCellValue());
-            }
-            if (row.getCell(9) == null){
-                customer.setBillBlock("");
-            } else {
-                customer.setBillBlock(row.getCell(9).getStringCellValue());
-            }
-            customerRepo.save(customer);
+        if(!contactPhone.isBlank() & ftthAccount.isBlank()){
+            throw new BadRequestException("You haven't enter ftthAccount yet, please enter both ftthAccount and contactPhone before submitting!");
         }
-        workbook.close();
+        if(contactPhone.isBlank() & !ftthAccount.isBlank()){
+            throw new BadRequestException("You haven't enter contactPhone yet, please enter both ftthAccount and contactPhone before submitting!");
+        }
+        if (customerRepo.findCustomerByFtthAccountAndContactPhone(ftthAccount, contactPhone).size() == 0){
+            throw new BadRequestException("Your information is not correct! Your account is not existing in our system, contact us via hotline to get a support!");
+        }
+        RepairRequest repairRequest = new RepairRequest();
+        repairRequest.setFtthAccount(ftthAccount);
+        repairRequest.setContactPhone(contactPhone);
+        repairRequestRepo.save(repairRequest);
+        return "Request successfully";
     }
 
     @Override
-    public List<CustomerDTO> search(String contactPhone, String ftthAccount, String otp) {
+    public List<CustomerDTO> checkCustomerInformation(String contactPhone, String ftthAccount, String otp) {
         if (!otp.equals("12345") || otp.isBlank()){
             throw new BadRequestException("The OTP is invalid");
         }
@@ -180,8 +132,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void resetCustomerData() {
-        customerRepo.deleteAll();
+    public List<RepairRequest> getAllRepairRequest() {
+        return repairRequestRepo.findAll();
     }
 
+    @Override
+    public void deleteAllRequest() {
+        repairRequestRepo.deleteAll();
+    }
 }
