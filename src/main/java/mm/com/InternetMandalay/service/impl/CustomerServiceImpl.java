@@ -12,6 +12,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -91,6 +93,7 @@ public class CustomerServiceImpl implements CustomerService {
         workbook.close();
     }
 
+    @Cacheable(value = "Customer", key = "#contactPhone + ':' + #ftthAccount")
     @Override
     public List<CustomerDTO> search(String contactPhone, String ftthAccount, String otp) {
         if (!otp.equals("12345") || otp.isBlank()){
