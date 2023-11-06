@@ -3,6 +3,7 @@ package mm.com.InternetMandalay.controller;
 import mm.com.InternetMandalay.entity.PaymentRequest;
 import mm.com.InternetMandalay.request.NewCustomerRequest;
 import mm.com.InternetMandalay.service.*;
+import mm.com.InternetMandalay.service.impl.MessageHubTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,8 @@ public class UserController {
     private RepairRequestService repairRequestService;
     @Autowired
     private BannerService bannerService;
+    @Autowired
+    private MessageHubTokenService messageHubTokenService;
 
     @GetMapping("/abnormal-case")
     public ResponseEntity<?> getAbnormalCase(){
@@ -41,33 +44,41 @@ public class UserController {
     }
 
     @GetMapping("/customer/search")
-    public ResponseEntity<?> searchCustomer(@RequestParam String contactPhone, @RequestParam String ftthAccount, @RequestParam String otp){
-        return ResponseEntity.ok(customerService.search(contactPhone, ftthAccount, otp));
+    public ResponseEntity<?> searchCustomer(@RequestParam String contactPhone,
+                                            @RequestParam String ftthAccount,
+                                            @RequestParam String otp){
+        customerService.isValidMockOtp(contactPhone, otp);
+        return ResponseEntity.ok(customerService.find(contactPhone, ftthAccount));
     }
 
     @GetMapping("/customer/otp")
     public ResponseEntity<?> getCustomerOtp(@RequestParam String contactPhone){
-        return ResponseEntity.ok(customerService.getOtp(contactPhone));
+        return ResponseEntity.ok(customerService.getMockOtp(contactPhone));
     }
 
     @PostMapping("/new-customer/register")
-    public ResponseEntity<?> createNewCustomer(@RequestParam(defaultValue = "none") String collaboratorCode, @RequestBody NewCustomerRequest newCustomerRequest){
+    public ResponseEntity<?> createNewCustomer(@RequestParam(defaultValue = "none") String collaboratorCode,
+                                               @RequestBody NewCustomerRequest newCustomerRequest){
         return ResponseEntity.ok(newCustomerService.create(collaboratorCode,newCustomerRequest));
     }
 
     @PostMapping("/payment-request/submit")
-    public ResponseEntity<?> submit(@RequestParam String contactPhone, @RequestParam String ftthAccount){
+    public ResponseEntity<?> submit(@RequestParam String contactPhone,
+                                    @RequestParam String ftthAccount){
         return ResponseEntity.ok(paymentRequestService.submitPaymentReuqest(contactPhone, ftthAccount));
     }
 
     @GetMapping("/payment-request/otp")
     public ResponseEntity<?> getPaymentRequestOtp(@RequestParam String contactPhone){
-        return ResponseEntity.ok(paymentRequestService.getOtp(contactPhone));
+        return ResponseEntity.ok(paymentRequestService.getMockOtp(contactPhone));
     }
 
     @PostMapping("/payment-request/check")
-    public ResponseEntity<?> checkInformation(@RequestParam String contactPhone, @RequestParam String ftthAccount, @RequestParam String otp){
-        return ResponseEntity.ok(paymentRequestService.checkCustomerInformation(contactPhone, ftthAccount, otp));
+    public ResponseEntity<?> checkInformation(@RequestParam String contactPhone,
+                                              @RequestParam String ftthAccount,
+                                              @RequestParam String otp){
+        paymentRequestService.validateMockOtp(contactPhone, otp);
+        return ResponseEntity.ok(paymentRequestService.checkCustomerInformation(contactPhone, ftthAccount));
     }
 
     @GetMapping("/payment-instruction")
@@ -91,12 +102,19 @@ public class UserController {
     }
 
     @PostMapping("/repair-request/check")
-    public ResponseEntity<?> checkRepair(@RequestParam String contactPhone, @RequestParam String ftthAccount, @RequestParam String otp){
-        return ResponseEntity.ok(repairRequestService.checkCustomerInformation(contactPhone, ftthAccount, otp));
+    public ResponseEntity<?> checkRepair(@RequestParam String contactPhone,
+                                         @RequestParam String ftthAccount,
+                                         @RequestParam String otp){
+        repairRequestService.isValidMockOtp(contactPhone, otp);
+        return ResponseEntity.ok(repairRequestService.checkCustomerInformation(contactPhone, ftthAccount));
     }
 
     @GetMapping("/repair-request/otp")
     public ResponseEntity<?> getRepairOtp(@RequestParam String contactPhone){
-        return ResponseEntity.ok(repairRequestService.getOtp(contactPhone));
+        return ResponseEntity.ok(repairRequestService.getMockOtp(contactPhone));
+    }
+
+    public void messageHubToken(){
+        messageHubTokenService.saveMessageHubToken();
     }
 }

@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +29,7 @@ public class AbnormalCaseServiceImpl implements AbnormalCaseService {
 
     private final Logger log = LoggerFactory.getLogger(AbnormalCaseServiceImpl.class);
 
-
+    @CacheEvict(value = "Abnormal-case", allEntries = true)
     @Override
     public AbnormalCaseDTO update(MultipartFile file, String title, String description) {
         if (!abnormalCaseRepo.existsById(id)){
@@ -80,6 +82,7 @@ public class AbnormalCaseServiceImpl implements AbnormalCaseService {
         }
     }
 
+    @Cacheable(value = "Abnormal-case", key = "'ACsInternetMandalay'")
     @Override
     public AbnormalCaseDTO get() {
         AbnormalCase abnormalCase = abnormalCaseRepo.getAbnormalCaseById(id);

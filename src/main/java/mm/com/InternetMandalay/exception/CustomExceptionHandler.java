@@ -15,4 +15,14 @@ public class CustomExceptionHandler{
     public ErrorResponse handleBadRequestException(BadRequestException e, WebRequest request){
         return new ErrorResponse(ErrorCode.BAD_REQUEST, e.getMessage());
     }
+
+    @ExceptionHandler(ParsingJsonException.class)
+    public ErrorResponse handleParsingJsonException(ParsingJsonException e, WebRequest request){
+        return new ErrorResponse(ErrorCode.PARSING_JSON_EXCEPTION, e.getMessage());
+    }
+
+    @ExceptionHandler(MessageHubException.class)
+    public ErrorResponse handleMessageHubException(MessageHubException e, WebRequest request){
+        return new ErrorResponse(ErrorCode.MESSAGE_HUB_EXCEPTION, e.getMessage());
+    }
 }

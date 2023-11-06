@@ -5,6 +5,8 @@ import mm.com.InternetMandalay.exception.BadRequestException;
 import mm.com.InternetMandalay.repository.PromotionImageRepo;
 import mm.com.InternetMandalay.service.PromotionImageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +21,7 @@ public class PromotionImageServiceImpl implements PromotionImageService {
     @Autowired
     private PromotionImageRepo imageRepo;
 
+    @CacheEvict(value = "Promotion", allEntries = true)
     @Override
     public PromotionImage upload(MultipartFile file) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
@@ -44,6 +47,7 @@ public class PromotionImageServiceImpl implements PromotionImageService {
         }
     }
 
+    @CacheEvict(value = "Promotion", allEntries = true)
     @Override
     public void delete(Integer id) {
         PromotionImage image = imageRepo.getPromotionImageById(id);
@@ -53,6 +57,7 @@ public class PromotionImageServiceImpl implements PromotionImageService {
         imageRepo.delete(image);
     }
 
+    @Cacheable(value = "Promotion", key = "'Promotion' + #root.methodName")
     @Override
     public List<PromotionImage> getAll() {
         return imageRepo.findAll();

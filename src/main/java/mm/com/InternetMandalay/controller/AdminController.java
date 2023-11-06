@@ -86,7 +86,7 @@ public class AdminController {
     @PostMapping("/customer/upload")
     public ResponseEntity<String> uploadCustomerExcel(@RequestParam("file") MultipartFile file){
         try {
-            customerService.uploadData(file.getInputStream());
+            customerService.uploadData2(file.getInputStream());
             return ResponseEntity.ok("Excel data imported successfully!! :D");
         } catch (IOException e){
             e.printStackTrace();
@@ -97,6 +97,7 @@ public class AdminController {
 
     @PostMapping("/customer/reset-customer-data")
     public ResponseEntity<?> resetCustomerData(){
+        customerService.validateDatabase();
         customerService.resetCustomerData();
         return ResponseEntity.ok("All Customer Data has been cleared!");
     }

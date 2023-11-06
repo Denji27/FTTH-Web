@@ -7,6 +7,8 @@ import mm.com.InternetMandalay.response.ContactInfoDTO;
 import mm.com.InternetMandalay.service.ContactInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +19,7 @@ public class ContactInfoServiceImpl implements ContactInfoService {
     @Value("${ContactInfo.Id}")
     private String id;
 
+    @CacheEvict(value = "Contact-info", allEntries = true)
     @Override
     public ContactInfoDTO update(ContactInfoUpdate contactInfoUpdate) {
         if(!contactInfoRepo.existsContactInfoById(id)){
@@ -41,6 +44,7 @@ public class ContactInfoServiceImpl implements ContactInfoService {
         return con;
     }
 
+    @Cacheable(value = "Contact-info", key = "'CIInternetMandalay'")
     @Override
     public ContactInfoDTO get() {
         ContactInfo contactInfo = contactInfoRepo.getContactInfoById(id);

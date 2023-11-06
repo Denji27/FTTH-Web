@@ -6,6 +6,8 @@ import mm.com.InternetMandalay.response.PaymentInstructionDTO;
 import mm.com.InternetMandalay.service.PaymentInstructionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +28,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
 
     private final Logger log = LoggerFactory.getLogger(PaymentInstructionServiceImpl.class);
 
+    @CacheEvict(value = "Payment-Instruction", allEntries = true)
     @Override
     public PaymentInstructionDTO update(MultipartFile file, String title, String description) {
         if (!paymentInstructionRepo.existsById(id)){
@@ -80,6 +83,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
         }
     }
 
+    @Cacheable(value = "Payment-Instruction", key = "'PMsInternetMandalay'")
     @Override
     public PaymentInstructionDTO get() {
         PaymentInstruction paymentInstruction = paymentInstructionRepo.getPaymentInstructionById(id);

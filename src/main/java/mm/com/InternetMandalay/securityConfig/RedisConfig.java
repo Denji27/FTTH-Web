@@ -13,6 +13,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 
 import java.net.InetSocketAddress;
@@ -53,10 +54,27 @@ public class RedisConfig {
     }
 
 
+//    @Bean
+//    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer(){
+//        return (builder) -> builder
+//                .withCacheConfiguration("Customer", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10)));
+//    }
+
     @Bean
-    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer(){
-        return (builder) -> builder
-                .withCacheConfiguration("Customer", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10)));
+    public RedisCacheConfiguration cacheConfiguration() {
+        RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(20))
+                .disableCachingNullValues();
+        cacheConfig.usePrefix();
+        return cacheConfig;
+    }
+
+    @Bean
+    public RedisCacheManager cacheManager() {
+        return RedisCacheManager
+                .builder(this.redisConnectionFactory())
+                .cacheDefaults(this.cacheConfiguration())
+                .build();
     }
 
 }

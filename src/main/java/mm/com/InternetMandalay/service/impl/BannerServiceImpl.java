@@ -5,6 +5,8 @@ import mm.com.InternetMandalay.exception.BadRequestException;
 import mm.com.InternetMandalay.repository.BannerRepo;
 import mm.com.InternetMandalay.service.BannerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +20,7 @@ import java.util.UUID;
 public class BannerServiceImpl implements BannerService {
     @Autowired
     private BannerRepo bannerRepo;
+    @CacheEvict(value = "Banner", allEntries = true)
     @Override
     public Banner upload(MultipartFile file) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
@@ -43,6 +46,7 @@ public class BannerServiceImpl implements BannerService {
         }
     }
 
+    @CacheEvict(value = "Banner", allEntries = true)
     @Override
     public void delete(Integer id) {
         Banner bannerImage = bannerRepo.getBannerById(id);
@@ -52,6 +56,7 @@ public class BannerServiceImpl implements BannerService {
         bannerRepo.delete(bannerImage);
     }
 
+    @Cacheable(value = "Banner", key = "'Banner_' + #root.methodName")
     @Override
     public List<Banner> getAll() {
         return bannerRepo.findAll();
