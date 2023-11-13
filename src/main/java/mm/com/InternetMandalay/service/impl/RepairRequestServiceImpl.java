@@ -34,7 +34,7 @@ public class RepairRequestServiceImpl implements RepairRequestService {
     private String messageHubToken;
 
     @Value("${MessageHub.Sms.BrandName}")
-    private String messageHubBrandName;
+    private String source;
 
     @Value("${MessageHub.Sms-api}")
     private String messageHubSmsApi;
@@ -182,12 +182,10 @@ public class RepairRequestServiceImpl implements RepairRequestService {
         headers.set("Authorization", "Bearer " + tokenForMessageHubApi);
 
         SmsRequest smsRequest = new SmsRequest();
-        smsRequest.setBrandName(messageHubBrandName);
-        smsRequest.setSendNow(true);
-        smsRequest.setScheduleDate(null);
-        smsRequest.setContent("This is a test message");
+        smsRequest.setSource(source);
+        smsRequest.setContent("Your OTP is " + redisTemplate.opsForValue().get(contactPhone) + ". Your OTP expires in 2 minutes. Please don’t reply");
         // todo set phone No again
-        smsRequest.setPhoneNumber("09686454616");
+        smsRequest.setDest(contactPhone);
 
         HttpEntity<SmsRequest> requestHttpEntity = new HttpEntity<>(smsRequest, headers);
         // todo: check the request again
@@ -203,17 +201,19 @@ public class RepairRequestServiceImpl implements RepairRequestService {
             try{
                 ObjectMapper objectMapper = new ObjectMapper();
                 SuccessfulSmsResponse successfulSmsResponse = objectMapper.readValue(responseBody, SuccessfulSmsResponse.class);
-                if (successfulSmsResponse.getResult().isSuccessful() == true){
+                if (successfulSmsResponse.getErrorCode() == 0){
                     return "The otp has been sent to your phone number, please check it and fill it to the blank for OTP";
                 }else {
-                    throw new MessageHubException(successfulSmsResponse.getResult().getErrorCode() + ": " + successfulSmsResponse.getResult().getErrorMessage());
+                    throw new MessageHubException(successfulSmsResponse.getErrorCode()+"");
                 }
             }catch (Exception e){
                 throw new ParsingJsonException("In sending sms Error parsing JSON response: " + e.getMessage());
             }
         }
-        int messError = response.getStatusCodeValue();
-        throw new MessageHubException("Request failed with status code: " + messError);
+        else {
+            int messError = response.getStatusCodeValue();
+            throw new MessageHubException("Request failed with status code: " + messError);
+        }
     }
 
     @Override

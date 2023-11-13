@@ -5,8 +5,6 @@ import mm.com.InternetMandalay.response.PaymentInstructionDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface PaymentInstructionService {
-//    PaymentInstruction create();
-    PaymentInstructionDTO update(MultipartFile file, String title, String description);
+    PaymentInstructionDTO update(String title, String description);
     PaymentInstructionDTO get();
-
 }

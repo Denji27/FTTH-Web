@@ -9,14 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.UUID;
 
 @Service
 public class PaymentInstructionServiceImpl implements PaymentInstructionService {
@@ -30,56 +24,15 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
 
     @CacheEvict(value = "Payment-Instruction", allEntries = true)
     @Override
-    public PaymentInstructionDTO update(MultipartFile file, String title, String description) {
+    public PaymentInstructionDTO update(String title, String description) {
         if (!paymentInstructionRepo.existsById(id)){
-            PaymentInstruction paymentInstruction = new PaymentInstruction();
-            paymentInstruction.setId(id);
-            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-            if (fileName.contains("..")){
-                System.out.println("not a a valid file");
-                throw new RuntimeException();
-            }
-            paymentInstruction.setImage(writeFileLocal(file));
+            return this.paymentMapper(this.createPaymentInstruction(title, description));
+        }else {
+            PaymentInstruction paymentInstruction = paymentInstructionRepo.getPaymentInstructionById(id);
             paymentInstruction.setDescription(description);
             paymentInstruction.setTitle(title);
             paymentInstructionRepo.save(paymentInstruction);
-            PaymentInstructionDTO pm = new PaymentInstructionDTO();
-            pm.setTitle(paymentInstruction.getTitle());
-            pm.setImage(paymentInstruction.getImage());
-            pm.setDescription(paymentInstruction.getDescription());
-            return pm;
-        }
-        PaymentInstruction paymentInstruction = paymentInstructionRepo.getPaymentInstructionById(id);
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-        if (fileName.contains("..")){
-            System.out.println("not a a valid file");
-            throw new RuntimeException();
-        }
-        paymentInstruction.setImage(writeFileLocal(file));
-        paymentInstruction.setDescription(description);
-        paymentInstruction.setTitle(title);
-        paymentInstructionRepo.save(paymentInstruction);
-        PaymentInstructionDTO pm = new PaymentInstructionDTO();
-        pm.setTitle(paymentInstruction.getTitle());
-        pm.setImage(paymentInstruction.getImage());
-        pm.setDescription(paymentInstruction.getDescription());
-        return pm;
-    }
-
-    public String writeFileLocal(MultipartFile file) {
-        if (file.isEmpty()) {
-            return null;
-        }
-        String filePath = UUID.randomUUID() + "-" + UUID.randomUUID().toString().substring(0, 8);
-
-        try {
-            File storeFile = new File("/root/tomcat/webapps/image/" + filePath);
-            file.transferTo(storeFile);
-            log.info("Create file {} successfully", file.getOriginalFilename());
-            return "https://internetmandalay.com/image/" + filePath;
-        } catch (IOException e) {
-            log.error("An error occurred while uploading the file, ", e);
-            return null;
+            return this.paymentMapper(paymentInstruction);
         }
     }
 
@@ -89,10 +42,21 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
         PaymentInstruction paymentInstruction = paymentInstructionRepo.getPaymentInstructionById(id);
         PaymentInstructionDTO pm = new PaymentInstructionDTO();
         pm.setTitle(paymentInstruction.getTitle());
-        pm.setImage(paymentInstruction.getImage());
         pm.setDescription(paymentInstruction.getDescription());
         return pm;
     }
 
-
+    private PaymentInstruction createPaymentInstruction(String title, String description){
+        PaymentInstruction paymentInstruction = new PaymentInstruction();
+        paymentInstruction.setId(this.id);
+        paymentInstruction.setDescription(description);
+        paymentInstruction.setTitle(title);
+        return paymentInstructionRepo.save(paymentInstruction);
+    }
+    private PaymentInstructionDTO paymentMapper(PaymentInstruction paymentInstruction){
+        PaymentInstructionDTO pm = new PaymentInstructionDTO();
+        pm.setTitle(paymentInstruction.getTitle());
+        pm.setDescription(paymentInstruction.getDescription());
+        return pm;
+    }
 }

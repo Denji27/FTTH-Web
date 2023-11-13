@@ -21,10 +21,6 @@ public class PaymentInstruction implements Serializable {
     @Column(name = "TITLE", unique = true, nullable = false)
     private String title;
 
-    @Lob
-    @Column(name = "IMAGE", columnDefinition = "MEDIUMBLOB")
-    private String image;
-
     @Column(name = "DESCRIPTION", columnDefinition = "TEXT")
     private String description;
 }

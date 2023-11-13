@@ -1,19 +1,15 @@
 package mm.com.InternetMandalay.controller;
 
-import mm.com.InternetMandalay.entity.AbnormalCaseImage;
 import mm.com.InternetMandalay.entity.NewCustomer;
 import mm.com.InternetMandalay.entity.PaymentRequest;
 import mm.com.InternetMandalay.entity.RepairRequest;
 import mm.com.InternetMandalay.request.ContactInfoUpdate;
-import mm.com.InternetMandalay.request.PromotionUpdate;
 import mm.com.InternetMandalay.service.*;
 import mm.com.InternetMandalay.utils.ExcelUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -49,17 +45,19 @@ public class AdminController {
     @Autowired
     private PromotionImageService promotionImageService;
     @Autowired
+    private PromotionDescriptionService promotionDescriptionService;
+    @Autowired
     private RepairRequestService repairRequestService;
     @Autowired
     private BannerService bannerService;
 
     /** Abnormal Case */
     @PostMapping("/abnormal-case/update")
-    public ResponseEntity<?> updateAbnormalCase(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<?> updateAbnormalCase(
                                     @RequestParam("title") String title,
                                     @RequestParam("description") String description)
     {
-        return ResponseEntity.ok(abnormalCaseService.update(file, title, description));
+        return ResponseEntity.ok(abnormalCaseService.update(title, description));
     }
     @GetMapping("/abnormal-case/get")
     public ResponseEntity<?> getAbnormalCase(){
@@ -125,20 +123,15 @@ public class AdminController {
                 "attachment; filename=customer.xlsx"
         );
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-//        return ResponseEntity
-//                .ok()
-//                .headers(headers)
-//                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-//                .body(new InputStreamResource(excelStream));
     }
 
     /** Payment Instruction */
     @PostMapping("/payment-instruction/update")
-    public ResponseEntity<?> updatePaymentInstruction(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<?> updatePaymentInstruction(
                                     @RequestParam("title") String title,
                                     @RequestParam("description") String description)
     {
-        return ResponseEntity.ok(paymentInstructionService.update(file, title, description));
+        return ResponseEntity.ok(paymentInstructionService.update(title, description));
     }
 
     @GetMapping("/payment-instruction/get")
@@ -167,6 +160,17 @@ public class AdminController {
         return ResponseEntity.ok(promotionImageService.getAll());
     }
 
+    /** Promotion Description */
+    @PostMapping("/promotion-description/update")
+    public ResponseEntity<?> update(@RequestParam String content){
+        return ResponseEntity.ok(promotionDescriptionService.update(content));
+    }
+
+    @GetMapping("/promotion-description/get")
+    public ResponseEntity<?> get(){
+        return ResponseEntity.ok(promotionDescriptionService.get());
+    }
+
     /** Payment Request */
     @GetMapping("/payment-requests/get-all")
     public ResponseEntity<?> getAllPaymentRequestOfCustomer(){
@@ -190,10 +194,6 @@ public class AdminController {
                 "attachment; filename=PaymentRequest.xlsx"
         );
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-//        return ResponseEntity.ok()
-//                .headers(headers)
-//                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-//                .body(new InputStreamResource(excelStream));
     }
 
     /** Banner */

@@ -5,22 +5,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "ABNORMAL_CASE")
-public class AbnormalCase implements Serializable {
+@Table(name = "PROMOTION_DESCRIPTION")
+public class PromotionDescription {
     @Id
     @Column(name = "ID")
     private String id;
-
-    @Column(name = "TITLE", unique = true, nullable = false)
-    private String title;
 
     @Column(name = "DESCRIPTION", columnDefinition = "TEXT")
     private String description;

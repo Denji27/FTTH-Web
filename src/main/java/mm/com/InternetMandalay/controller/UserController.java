@@ -1,6 +1,5 @@
 package mm.com.InternetMandalay.controller;
 
-import mm.com.InternetMandalay.entity.PaymentRequest;
 import mm.com.InternetMandalay.request.NewCustomerRequest;
 import mm.com.InternetMandalay.service.*;
 import mm.com.InternetMandalay.service.impl.MessageHubTokenService;
@@ -27,6 +26,8 @@ public class UserController {
     @Autowired
     private PromotionImageService promotionImageService;
     @Autowired
+    private PromotionDescriptionService promotionDescriptionService;
+    @Autowired
     private RepairRequestService repairRequestService;
     @Autowired
     private BannerService bannerService;
@@ -47,13 +48,13 @@ public class UserController {
     public ResponseEntity<?> searchCustomer(@RequestParam String contactPhone,
                                             @RequestParam String ftthAccount,
                                             @RequestParam String otp){
-        customerService.isValidMockOtp(contactPhone, otp);
+        customerService.isValidOtp(contactPhone, otp);
         return ResponseEntity.ok(customerService.find(contactPhone, ftthAccount));
     }
 
     @GetMapping("/customer/otp")
     public ResponseEntity<?> getCustomerOtp(@RequestParam String contactPhone){
-        return ResponseEntity.ok(customerService.getMockOtp(contactPhone));
+        return ResponseEntity.ok(customerService.getOtp(contactPhone));
     }
 
     @PostMapping("/new-customer/register")
@@ -89,6 +90,11 @@ public class UserController {
     @GetMapping("/promotion-image")
     public ResponseEntity<?> getAllPromotionImage(){
         return ResponseEntity.ok(promotionImageService.getAll());
+    }
+
+    @GetMapping("/promotion-description/get")
+    public ResponseEntity<?> get(){
+        return ResponseEntity.ok(promotionDescriptionService.get());
     }
 
     @GetMapping("/banner")

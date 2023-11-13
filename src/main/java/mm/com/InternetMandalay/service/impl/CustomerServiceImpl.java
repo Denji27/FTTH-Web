@@ -22,7 +22,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,7 +39,7 @@ public class CustomerServiceImpl implements CustomerService {
     private String messageHubToken;
 
     @Value("${MessageHub.Sms.BrandName}")
-    private String messageHubBrandName;
+    private String source;
 
     @Value("${MessageHub.Sms-api}")
     private String messageHubSmsApi;
@@ -54,16 +53,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private RestTemplate restTemplate;
 
-//    @Async
     @CacheEvict(value = "Customer", allEntries = true)
     @Override
     public void uploadData2(InputStream excelFile) {
-        long startTime = System.nanoTime();
         List<Customer> customers = new ArrayList<>();
         try{
             Workbook workbook = new XSSFWorkbook(excelFile);
             Sheet sheet = workbook.getSheetAt(0);
-
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) {
                     // Skip the header row
@@ -131,9 +127,6 @@ public class CustomerServiceImpl implements CustomerService {
             List<Customer> batch = customers.subList(1, endIndex);
             customerRepo.saveAll(batch);
         }
-        long endTime = System.nanoTime();
-        long duration = startTime - endTime;
-        System.out.println("Time" + duration);
     }
 
     @Cacheable(value = "Customer", key = "#contactPhone + ':' + #ftthAccount")
@@ -246,17 +239,15 @@ public class CustomerServiceImpl implements CustomerService {
         headers.set("Authorization", "Bearer " + tokenForMessageHubApi);
 
         SmsRequest smsRequest = new SmsRequest();
-        smsRequest.setBrandName(messageHubBrandName);
-        smsRequest.setSendNow(true);
-        smsRequest.setScheduleDate(null);
-        smsRequest.setContent("This is a test message");
+        smsRequest.setSource("INTERNETMDY");
+        smsRequest.setContent("Your OTP is " + redisTemplate.opsForValue().get(contactPhone) + ". Your OTP expires in 2 minutes. Please don’t reply");
         // todo set phone No again
-        smsRequest.setPhoneNumber("09686454616");
+        smsRequest.setDest(contactPhone);
 
         HttpEntity<SmsRequest> requestHttpEntity = new HttpEntity<>(smsRequest, headers);
         // todo: check the request again
         ResponseEntity<?> response = restTemplate.exchange(
-                messageHubSmsApi,
+                "https://mytelapigw.mytel.com.mm:9070/msg-service/v1.3/smsmt/sent",
                 HttpMethod.POST,
                 requestHttpEntity,
                 String.class
@@ -267,17 +258,18 @@ public class CustomerServiceImpl implements CustomerService {
             try{
                 ObjectMapper objectMapper = new ObjectMapper();
                 SuccessfulSmsResponse successfulSmsResponse = objectMapper.readValue(responseBody, SuccessfulSmsResponse.class);
-                if (successfulSmsResponse.getResult().isSuccessful() == true){
+                if (successfulSmsResponse.getErrorCode() == 0){
                     return "The otp has been sent to your phone number, please check it and fill it to the blank for OTP";
                 }else {
-                    throw new MessageHubException(successfulSmsResponse.getResult().getErrorCode() + ": " + successfulSmsResponse.getResult().getErrorMessage());
+                    throw new MessageHubException(successfulSmsResponse.getErrorCode() + "");
                 }
             }catch (Exception e){
                 throw new ParsingJsonException("In sending sms Error parsing JSON response: " + e.getMessage());
             }
+        } else {
+            int messError = response.getStatusCodeValue();
+            throw new MessageHubException("Request failed with status code: " + messError);
         }
-        int messError = response.getStatusCodeValue();
-        throw new MessageHubException("Request failed with status code: " + messError);
     }
 
     private String generateOtp(){
