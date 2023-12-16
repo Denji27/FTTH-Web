@@ -63,9 +63,9 @@ public class RepairRequestServiceImpl implements RepairRequestService {
         if(contactPhone.isBlank() & !ftthAccount.isBlank()){
             throw new BadRequestException("You haven't enter contactPhone yet, please enter both ftthAccount and contactPhone before submitting!");
         }
-        if (customerRepo.findCustomerByFtthAccountAndContactPhone(ftthAccount, contactPhone).size() == 0){
-            throw new BadRequestException("Your information is not correct! Your account is not existing in our system, contact us via hotline to get a support!");
-        }
+//        if (customerRepo.findCustomerByFtthAccountAndContactPhone(ftthAccount, contactPhone).size() == 0){
+//            throw new BadRequestException("Your information is not correct! Your account is not existing in our system, contact us via hotline to get a support!");
+//        }
         RepairRequest repairRequest = new RepairRequest();
         repairRequest.setFtthAccount(ftthAccount);
         repairRequest.setContactPhone(contactPhone);
@@ -73,171 +73,171 @@ public class RepairRequestServiceImpl implements RepairRequestService {
         return "Request successfully";
     }
 
-    @Cacheable(value = "Customer", key = "#contactPhone + ':' + #ftthAccount")
-    @Override
-    public List<CustomerDTO> checkCustomerInformation(String contactPhone, String ftthAccount) {
-        List<CustomerDTO> customerDTOList = new ArrayList<>();
-        if(ftthAccount.isBlank() & contactPhone.isBlank()){
-            throw new NotFoundException("You haven't entered your account or phone number!");
-        }
-        if(ftthAccount.isBlank() & !contactPhone.isBlank()){
-            List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
-            if (customers.size() == 0){
-                throw new NotFoundException("Your account is not exist");
-            }
-            for (Customer customer : customers){
-                CustomerDTO customerDto = CustomerDTO.builder()
-                        .ftthAccount(customer.getFtthAccount())
-                        .customerName(customer.getCustomerName())
-                        .customerAddress(customer.getCustomerAddress())
-                        .contactPhone(customer.getContactPhone())
-                        .productCode(customer.getProductCode())
-                        .monthAdv(customer.getMonthAdv())
-                        .totalMoney(customer.getTotalMoney())
-                        .d2dName(customer.getD2dName())
-                        .d2dPhoneNumber(customer.getD2dPhoneNumber())
-                        .billBlock(customer.getBillBlock())
-                        .build();
-                customerDTOList.add(customerDto);
-            }
-
-            return customerDTOList;
-        }
-        if (!ftthAccount.isBlank() & contactPhone.isBlank()){
-            List<Customer> customers = customerRepo.findCustomerByFtthAccount(ftthAccount);
-            if (customers.size() == 0){
-                throw new NotFoundException("Your account is not exist");
-            }
-            for (Customer customer : customers){
-                CustomerDTO customerDto = CustomerDTO.builder()
-                        .ftthAccount(customer.getFtthAccount())
-                        .customerName(customer.getCustomerName())
-                        .customerAddress(customer.getCustomerAddress())
-                        .contactPhone(customer.getContactPhone())
-                        .productCode(customer.getProductCode())
-                        .monthAdv(customer.getMonthAdv())
-                        .totalMoney(customer.getTotalMoney())
-                        .d2dName(customer.getD2dName())
-                        .d2dPhoneNumber(customer.getD2dPhoneNumber())
-                        .billBlock(customer.getBillBlock())
-                        .build();
-                customerDTOList.add(customerDto);
-            }
-            return customerDTOList;
-        }
-        List<Customer> customers = customerRepo.findCustomerByFtthAccountAndContactPhone(ftthAccount, contactPhone);
-        if (customers.size() == 0){
-            throw new NotFoundException("Your account is not exist");
-        }
-        for (Customer customer : customers){
-            CustomerDTO customerDto = CustomerDTO.builder()
-                    .ftthAccount(customer.getFtthAccount())
-                    .customerName(customer.getCustomerName())
-                    .customerAddress(customer.getCustomerAddress())
-                    .contactPhone(customer.getContactPhone())
-                    .productCode(customer.getProductCode())
-                    .monthAdv(customer.getMonthAdv())
-                    .totalMoney(customer.getTotalMoney())
-                    .d2dName(customer.getD2dName())
-                    .d2dPhoneNumber(customer.getD2dPhoneNumber())
-                    .billBlock(customer.getBillBlock())
-                    .build();
-            customerDTOList.add(customerDto);
-        }
-        return customerDTOList;
-    }
-
-    @Override
-    public String getMockOtp(String contactPhone) {
-        if (contactPhone.isBlank()){
-            throw new NotFoundException("You haven't entered phone number yet!");
-        }
-        List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
-        if (customers.size() == 0){
-            throw new NotFoundException("Phone number is not included in our system!");
-        }
-        return "The otp has been sent to your phone number, please check it and fill it to the blank for OTP";
-    }
-
-    private String generateOtp(){
-        return new DecimalFormat("000000").format(new Random().nextInt(999999));
-    }
-
-    @Override
-    public String getOtp(String contactPhone) {
-        if (contactPhone.isBlank()){
-            throw new NotFoundException("You haven't entered phone number yet!");
-        }
-        List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
-        if (customers.size() == 0){
-            throw new NotFoundException("Phone number is not included in our system!");
-        }
-        redisTemplate.delete(contactPhone);
-        redisTemplate.opsForValue().set(contactPhone, generateOtp(), 120, TimeUnit.SECONDS);
-        System.out.println("OTP: " + redisTemplate.opsForValue().get(contactPhone));
-
-        String tokenForMessageHubApi = redisTemplate.opsForValue().get(messageHubToken);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + tokenForMessageHubApi);
-
-        SmsRequest smsRequest = new SmsRequest();
-        smsRequest.setSource(source);
-        smsRequest.setContent("Your OTP is " + redisTemplate.opsForValue().get(contactPhone) + ". Your OTP expires in 2 minutes. Please don’t reply");
-        // todo set phone No again
-        smsRequest.setDest(contactPhone);
-
-        HttpEntity<SmsRequest> requestHttpEntity = new HttpEntity<>(smsRequest, headers);
-        // todo: check the request again
-        ResponseEntity<?> response = restTemplate.exchange(
-                messageHubSmsApi,
-                HttpMethod.POST,
-                requestHttpEntity,
-                String.class
-        );
-        if (response.getStatusCode().is2xxSuccessful()){
-            String responseBody = response.getBody().toString();
-            System.out.println("response body of mess hub" + responseBody);
-            try{
-                ObjectMapper objectMapper = new ObjectMapper();
-                SuccessfulSmsResponse successfulSmsResponse = objectMapper.readValue(responseBody, SuccessfulSmsResponse.class);
-                if (successfulSmsResponse.getErrorCode() == 0){
-                    return "The otp has been sent to your phone number, please check it and fill it to the blank for OTP";
-                }else {
-                    throw new MessageHubException(successfulSmsResponse.getErrorCode()+"");
-                }
-            }catch (Exception e){
-                throw new ParsingJsonException("In sending sms Error parsing JSON response: " + e.getMessage());
-            }
-        }
-        else {
-            int messError = response.getStatusCodeValue();
-            throw new MessageHubException("Request failed with status code: " + messError);
-        }
-    }
-
-    @Override
-    public void isValidMockOtp(String contactPhone, String otp) {
-        if (contactPhone.isBlank() || otp.isBlank()){
-            throw new BadRequestException("Please enter both your phone number and otp");
-        }
-        if (!otp.equals("12345")){
-            throw new BadRequestException("The OTP is in valid");
-        }
-    }
-
-    @Override
-    public void isValidOtp(String contactPhone, String otp) {
-        if (contactPhone.isBlank() || otp.isBlank()){
-            throw new BadRequestException("Please enter both your phone number and otp");
-        }
-        if (redisTemplate.opsForValue().get(contactPhone) == null){
-            throw new BadRequestException("The OTP is expired or you haven't get OTP yet, please get OTP and fill in the blank");
-        }
-        if (!otp.equals(redisTemplate.opsForValue().get(contactPhone))){
-            throw new BadRequestException("The OTP is in valid");
-        }
-    }
+//    @Cacheable(value = "Customer", key = "#contactPhone + ':' + #ftthAccount")
+//    @Override
+//    public List<CustomerDTO> checkCustomerInformation(String contactPhone, String ftthAccount) {
+//        List<CustomerDTO> customerDTOList = new ArrayList<>();
+//        if(ftthAccount.isBlank() & contactPhone.isBlank()){
+//            throw new NotFoundException("You haven't entered your account or phone number!");
+//        }
+//        if(ftthAccount.isBlank() & !contactPhone.isBlank()){
+//            List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
+//            if (customers.size() == 0){
+//                throw new NotFoundException("Your account is not exist");
+//            }
+//            for (Customer customer : customers){
+//                CustomerDTO customerDto = CustomerDTO.builder()
+//                        .ftthAccount(customer.getFtthAccount())
+//                        .customerName(customer.getCustomerName())
+//                        .customerAddress(customer.getCustomerAddress())
+//                        .contactPhone(customer.getContactPhone())
+//                        .productCode(customer.getProductCode())
+//                        .monthAdv(customer.getMonthAdv())
+//                        .totalMoney(customer.getTotalMoney())
+//                        .d2dName(customer.getD2dName())
+//                        .d2dPhoneNumber(customer.getD2dPhoneNumber())
+//                        .billBlock(customer.getBillBlock())
+//                        .build();
+//                customerDTOList.add(customerDto);
+//            }
+//
+//            return customerDTOList;
+//        }
+//        if (!ftthAccount.isBlank() & contactPhone.isBlank()){
+//            List<Customer> customers = customerRepo.findCustomerByFtthAccount(ftthAccount);
+//            if (customers.size() == 0){
+//                throw new NotFoundException("Your account is not exist");
+//            }
+//            for (Customer customer : customers){
+//                CustomerDTO customerDto = CustomerDTO.builder()
+//                        .ftthAccount(customer.getFtthAccount())
+//                        .customerName(customer.getCustomerName())
+//                        .customerAddress(customer.getCustomerAddress())
+//                        .contactPhone(customer.getContactPhone())
+//                        .productCode(customer.getProductCode())
+//                        .monthAdv(customer.getMonthAdv())
+//                        .totalMoney(customer.getTotalMoney())
+//                        .d2dName(customer.getD2dName())
+//                        .d2dPhoneNumber(customer.getD2dPhoneNumber())
+//                        .billBlock(customer.getBillBlock())
+//                        .build();
+//                customerDTOList.add(customerDto);
+//            }
+//            return customerDTOList;
+//        }
+//        List<Customer> customers = customerRepo.findCustomerByFtthAccountAndContactPhone(ftthAccount, contactPhone);
+//        if (customers.size() == 0){
+//            throw new NotFoundException("Your account is not exist");
+//        }
+//        for (Customer customer : customers){
+//            CustomerDTO customerDto = CustomerDTO.builder()
+//                    .ftthAccount(customer.getFtthAccount())
+//                    .customerName(customer.getCustomerName())
+//                    .customerAddress(customer.getCustomerAddress())
+//                    .contactPhone(customer.getContactPhone())
+//                    .productCode(customer.getProductCode())
+//                    .monthAdv(customer.getMonthAdv())
+//                    .totalMoney(customer.getTotalMoney())
+//                    .d2dName(customer.getD2dName())
+//                    .d2dPhoneNumber(customer.getD2dPhoneNumber())
+//                    .billBlock(customer.getBillBlock())
+//                    .build();
+//            customerDTOList.add(customerDto);
+//        }
+//        return customerDTOList;
+//    }
+//
+//    @Override
+//    public String getMockOtp(String contactPhone) {
+//        if (contactPhone.isBlank()){
+//            throw new NotFoundException("You haven't entered phone number yet!");
+//        }
+//        List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
+//        if (customers.size() == 0){
+//            throw new NotFoundException("Phone number is not included in our system!");
+//        }
+//        return "The otp has been sent to your phone number, please check it and fill it to the blank for OTP";
+//    }
+//
+//    private String generateOtp(){
+//        return new DecimalFormat("000000").format(new Random().nextInt(999999));
+//    }
+//
+//    @Override
+//    public String getOtp(String contactPhone) {
+//        if (contactPhone.isBlank()){
+//            throw new NotFoundException("You haven't entered phone number yet!");
+//        }
+//        List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
+//        if (customers.size() == 0){
+//            throw new NotFoundException("Phone number is not included in our system!");
+//        }
+//        redisTemplate.delete(contactPhone);
+//        redisTemplate.opsForValue().set(contactPhone, generateOtp(), 120, TimeUnit.SECONDS);
+//        System.out.println("OTP: " + redisTemplate.opsForValue().get(contactPhone));
+//
+//        String tokenForMessageHubApi = redisTemplate.opsForValue().get(messageHubToken);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//        headers.set("Authorization", "Bearer " + tokenForMessageHubApi);
+//
+//        SmsRequest smsRequest = new SmsRequest();
+//        smsRequest.setSource(source);
+//        smsRequest.setContent("Your OTP is " + redisTemplate.opsForValue().get(contactPhone) + ". Your OTP expires in 2 minutes. Please don’t reply");
+//        // todo set phone No again
+//        smsRequest.setDest(contactPhone);
+//
+//        HttpEntity<SmsRequest> requestHttpEntity = new HttpEntity<>(smsRequest, headers);
+//        // todo: check the request again
+//        ResponseEntity<?> response = restTemplate.exchange(
+//                messageHubSmsApi,
+//                HttpMethod.POST,
+//                requestHttpEntity,
+//                String.class
+//        );
+//        if (response.getStatusCode().is2xxSuccessful()){
+//            String responseBody = response.getBody().toString();
+//            System.out.println("response body of mess hub" + responseBody);
+//            try{
+//                ObjectMapper objectMapper = new ObjectMapper();
+//                SuccessfulSmsResponse successfulSmsResponse = objectMapper.readValue(responseBody, SuccessfulSmsResponse.class);
+//                if (successfulSmsResponse.getErrorCode() == 0){
+//                    return "The otp has been sent to your phone number, please check it and fill it to the blank for OTP";
+//                }else {
+//                    throw new MessageHubException(successfulSmsResponse.getErrorCode()+"");
+//                }
+//            }catch (Exception e){
+//                throw new ParsingJsonException("In sending sms Error parsing JSON response: " + e.getMessage());
+//            }
+//        }
+//        else {
+//            int messError = response.getStatusCodeValue();
+//            throw new MessageHubException("Request failed with status code: " + messError);
+//        }
+//    }
+//
+//    @Override
+//    public void isValidMockOtp(String contactPhone, String otp) {
+//        if (contactPhone.isBlank() || otp.isBlank()){
+//            throw new BadRequestException("Please enter both your phone number and otp");
+//        }
+//        if (!otp.equals("12345")){
+//            throw new BadRequestException("The OTP is in valid");
+//        }
+//    }
+//
+//    @Override
+//    public void isValidOtp(String contactPhone, String otp) {
+//        if (contactPhone.isBlank() || otp.isBlank()){
+//            throw new BadRequestException("Please enter both your phone number and otp");
+//        }
+//        if (redisTemplate.opsForValue().get(contactPhone) == null){
+//            throw new BadRequestException("The OTP is expired or you haven't get OTP yet, please get OTP and fill in the blank");
+//        }
+//        if (!otp.equals(redisTemplate.opsForValue().get(contactPhone))){
+//            throw new BadRequestException("The OTP is in valid");
+//        }
+//    }
 
     @Cacheable(value = "Repair-request", key = "'repair_request' + #root.methodName")
     @Override

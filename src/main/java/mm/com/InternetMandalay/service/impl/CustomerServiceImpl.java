@@ -12,6 +12,7 @@ import mm.com.InternetMandalay.request.SmsRequest;
 import mm.com.InternetMandalay.response.CustomerDTO;
 import mm.com.InternetMandalay.service.CustomerService;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -21,14 +22,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -56,8 +66,9 @@ public class CustomerServiceImpl implements CustomerService {
     @CacheEvict(value = "Customer", allEntries = true)
     @Override
     public void uploadData2(InputStream excelFile) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         List<Customer> customers = new ArrayList<>();
-        try{
+        try {
             Workbook workbook = new XSSFWorkbook(excelFile);
             Sheet sheet = workbook.getSheetAt(0);
             for (Row row : sheet) {
@@ -67,62 +78,78 @@ public class CustomerServiceImpl implements CustomerService {
                 }
                 Customer customer = new Customer();
                 customer.setFtthAccount(row.getCell(0).getStringCellValue());
-                if (row.getCell(1) == null){
+                if (row.getCell(1) == null) {
                     customer.setCustomerName("");
-                }else {
+                } else {
                     customer.setCustomerName(row.getCell(1).getStringCellValue());
                 }
-                if (row.getCell(2) == null){
+                if (row.getCell(2) == null) {
                     customer.setCustomerAddress("");
-                }else {
+                } else {
                     customer.setCustomerAddress(row.getCell(2).getStringCellValue());
                 }
                 customer.setContactPhone(row.getCell(3).getStringCellValue());
-                if (row.getCell(4) == null){
+                if (row.getCell(4) == null) {
                     customer.setProductCode("");
                 } else {
                     customer.setProductCode(row.getCell(4).getStringCellValue());
                 }
-                if (row.getCell(5) == null){
+                if (row.getCell(5) == null) {
                     customer.setMonthAdv("");
                 } else {
                     customer.setMonthAdv(row.getCell(5).getStringCellValue());
                 }
-                if (row.getCell(6) == null){
+                if (row.getCell(6) == null) {
                     customer.setTotalMoney("");
                 } else {
                     CellType totalMoneyType = row.getCell(6).getCellType();
-                    if (totalMoneyType == CellType.STRING){
+                    if (totalMoneyType == CellType.STRING) {
                         customer.setTotalMoney(row.getCell(6).getStringCellValue());
                     }
-                    if (totalMoneyType == CellType.NUMERIC){
+                    if (totalMoneyType == CellType.NUMERIC) {
                         Integer value = (int) row.getCell(6).getNumericCellValue();
                         customer.setTotalMoney(value.toString());
                     }
                 }
-                if (row.getCell(7) == null){
+                if (row.getCell(7) == null) {
                     customer.setD2dName("");
-                }else {
+                } else {
                     customer.setD2dName(row.getCell(7).getStringCellValue());
                 }
-                if (row.getCell(8) == null){
+                if (row.getCell(8) == null) {
                     customer.setD2dPhoneNumber("");
-                } else{
-                    customer.setD2dPhoneNumber(row.getCell(8).getStringCellValue());
+                } else {
+                    CellType phoneCellType = row.getCell(8).getCellType();
+                    if (phoneCellType == CellType.NUMERIC) {
+                        Integer value = (int) row.getCell(8).getNumericCellValue();
+                        customer.setD2dPhoneNumber(value.toString());
+                    }
+                    if (phoneCellType == CellType.STRING) {
+                        customer.setD2dPhoneNumber(row.getCell(8).getStringCellValue());
+                    }
                 }
-                if (row.getCell(9) == null){
+                if (row.getCell(9) == null) {
                     customer.setBillBlock("");
                 } else {
-                    customer.setBillBlock(row.getCell(9).getStringCellValue());
+                    CellType billBlockCellType = row.getCell(9).getCellType();
+                    if (billBlockCellType == CellType.NUMERIC) {
+                        Date billBlock = DateUtil.getJavaDate(row.getCell(9).getNumericCellValue());
+                        LocalDate finalBillBlock = billBlock.toInstant().atZone(ZoneId.of("Asia/Bangkok")).toLocalDate();
+                        customer.setBillBlock(finalBillBlock.format(formatter));
+                    }
+                    if (billBlockCellType == CellType.STRING) {
+                        customer.setBillBlock(row.getCell(9).getStringCellValue());
+                    }
+
                 }
                 customers.add(customer);
             }
             workbook.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         int batchSize = 10000;
-        for (int i=0; i< customers.size(); i += batchSize){
+        for (int i = 0; i < customers.size(); i += batchSize) {
             int endIndex = Math.min(i + batchSize, customers.size());
             List<Customer> batch = customers.subList(1, endIndex);
             customerRepo.saveAll(batch);
@@ -131,17 +158,17 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Cacheable(value = "Customer", key = "#contactPhone + ':' + #ftthAccount")
     @Override
-    public List<CustomerDTO> find(String contactPhone, String ftthAccount){
+    public List<CustomerDTO> find(String contactPhone, String ftthAccount) {
         List<CustomerDTO> customerDTOList = new ArrayList<>();
-        if(ftthAccount.isBlank() & contactPhone.isBlank()){
+        if (ftthAccount.isBlank() & contactPhone.isBlank()) {
             throw new NotFoundException("You haven't entered your account or phone number!");
         }
-        if(ftthAccount.isBlank() & !contactPhone.isBlank()){
+        if (ftthAccount.isBlank() & !contactPhone.isBlank()) {
             List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
-            if (customers.size() == 0){
+            if (customers.size() == 0) {
                 throw new NotFoundException("Your account is not exist");
             }
-            for (Customer customer : customers){
+            for (Customer customer : customers) {
                 CustomerDTO customerDto = CustomerDTO.builder()
                         .ftthAccount(customer.getFtthAccount())
                         .customerName(customer.getCustomerName())
@@ -159,12 +186,12 @@ public class CustomerServiceImpl implements CustomerService {
 
             return customerDTOList;
         }
-        if (!ftthAccount.isBlank() & contactPhone.isBlank()){
+        if (!ftthAccount.isBlank() & contactPhone.isBlank()) {
             List<Customer> customers = customerRepo.findCustomerByFtthAccount(ftthAccount);
-            if (customers.size() == 0){
+            if (customers.size() == 0) {
                 throw new NotFoundException("Your account is not exist");
             }
-            for (Customer customer : customers){
+            for (Customer customer : customers) {
                 CustomerDTO customerDto = CustomerDTO.builder()
                         .ftthAccount(customer.getFtthAccount())
                         .customerName(customer.getCustomerName())
@@ -182,10 +209,10 @@ public class CustomerServiceImpl implements CustomerService {
             return customerDTOList;
         }
         List<Customer> customers = customerRepo.findCustomerByFtthAccountAndContactPhone(ftthAccount, contactPhone);
-        if (customers.size() == 0){
+        if (customers.size() == 0) {
             throw new NotFoundException("Your account is not exist");
         }
-        for (Customer customer : customers){
+        for (Customer customer : customers) {
             CustomerDTO customerDto = CustomerDTO.builder()
                     .ftthAccount(customer.getFtthAccount())
                     .customerName(customer.getCustomerName())
@@ -203,15 +230,15 @@ public class CustomerServiceImpl implements CustomerService {
         return customerDTOList;
     }
 
-    @Override
-    public void isValidMockOtp(String contactPhone, String otp) {
-        if (contactPhone.isBlank() || otp.isBlank()){
-            throw new BadRequestException("Please enter both your phone number and otp");
-        }
-        if (!otp.equals("12345")){
-            throw new BadRequestException("The OTP is in valid");
-        }
-    }
+//    @Override
+//    public void isValidMockOtp(String contactPhone, String otp) {
+//        if (contactPhone.isBlank() || otp.isBlank()){
+//            throw new BadRequestException("Please enter both your phone number and otp");
+//        }
+//        if (!otp.equals("12345")){
+//            throw new BadRequestException("The OTP is in valid");
+//        }
+//    }
 
 
 //    @Override
@@ -221,14 +248,17 @@ public class CustomerServiceImpl implements CustomerService {
 //    }
 
     @Override
-    public String getOtp(String contactPhone) {
-        if (contactPhone.isBlank()){
+    public String getOtp(String contactPhone, HttpServletRequest request) {
+        if (contactPhone.isBlank()) {
             throw new NotFoundException("You haven't entered phone number yet!");
         }
         List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
-        if (customers.size() == 0){
+        if (customers.size() == 0) {
             throw new NotFoundException("Phone number is not included in our system!");
         }
+        String clientIp = this.getClientIp(request);
+        String limit = this.getLimitTime(clientIp);
+        this.validateLimitTime(limit);
         redisTemplate.delete(contactPhone);
         redisTemplate.opsForValue().set(contactPhone, generateOtp(), 120, TimeUnit.SECONDS);
         System.out.println("OTP: " + redisTemplate.opsForValue().get(contactPhone));
@@ -252,18 +282,19 @@ public class CustomerServiceImpl implements CustomerService {
                 requestHttpEntity,
                 String.class
         );
-        if (response.getStatusCode().is2xxSuccessful()){
+        if (response.getStatusCode().is2xxSuccessful()) {
             String responseBody = response.getBody().toString();
             System.out.println("response body of mess hub" + responseBody);
-            try{
+            try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 SuccessfulSmsResponse successfulSmsResponse = objectMapper.readValue(responseBody, SuccessfulSmsResponse.class);
-                if (successfulSmsResponse.getErrorCode() == 0){
+                if (successfulSmsResponse.getErrorCode() == 0) {
+                    this.addRequestTimeToLimit(limit, clientIp);
                     return "The otp has been sent to your phone number, please check it and fill it to the blank for OTP";
-                }else {
+                } else {
                     throw new MessageHubException(successfulSmsResponse.getErrorCode() + "");
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new ParsingJsonException("In sending sms Error parsing JSON response: " + e.getMessage());
             }
         } else {
@@ -272,34 +303,65 @@ public class CustomerServiceImpl implements CustomerService {
         }
     }
 
-    private String generateOtp(){
+    private String generateOtp() {
         return new DecimalFormat("000000").format(new Random().nextInt(999999));
     }
 
     @Override
-    public void isValidOtp(String contactPhone, String otp){
-        if (contactPhone.isBlank() || otp.isBlank()){
+    public void isValidOtp(String contactPhone, String otp) {
+        if (contactPhone.isBlank() || otp.isBlank()) {
             throw new BadRequestException("Please enter both your phone number and otp");
         }
-        if (redisTemplate.opsForValue().get(contactPhone) == null){
+        if (redisTemplate.opsForValue().get(contactPhone) == null) {
             throw new BadRequestException("The OTP is expired or you haven't get OTP yet, please get OTP and fill in the blank");
         }
-        if (!otp.equals(redisTemplate.opsForValue().get(contactPhone))){
+        if (!otp.equals(redisTemplate.opsForValue().get(contactPhone))) {
             throw new BadRequestException("The OTP is in valid");
         }
     }
 
-    @Override
-    public String getMockOtp(String contactPhone) {
-        if (contactPhone.isBlank()){
-            throw new NotFoundException("You haven't entered phone number yet!");
-        }
-        List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
-        if (customers.size() == 0){
-            throw new NotFoundException("Phone number is not included in our system!");
-        }
-        return "The otp has been sent to your phone number, please check it and fill it to the blank for OTP";
+    private String getClientIp(HttpServletRequest request) {
+        String xForwardedForHeader = request.getHeader("X-Forwarded-For");
+        String[] ips = xForwardedForHeader != null ? xForwardedForHeader.split(",") : new String[0];
+        return ips.length > 0 ? ips[0].trim() : request.getRemoteAddr();
     }
+
+    private String getLimitTime(String clientIp) {
+        return redisTemplate.opsForValue().get(clientIp);
+    }
+
+    private void validateLimitTime(String value) {
+        if (value != null) {
+            int valueInt = Integer.parseInt(value);
+            if (valueInt >= 4) {
+                throw new BadRequestException("You had reached the limit for getting otp today. You cannot get otp today anymore");
+            }
+        }
+    }
+
+    private void addRequestTimeToLimit(String value, String clientIp) {
+        if (value != null) {
+            int valueInt = Integer.parseInt(value);
+            value = String.valueOf(valueInt + 1);
+            redisTemplate.delete(clientIp);
+            redisTemplate.opsForValue().set(clientIp, value, 24, TimeUnit.HOURS);
+        } else {
+            value = "1";
+            redisTemplate.opsForValue().set(clientIp, value, 24, TimeUnit.HOURS);
+        }
+    }
+
+//    @Override
+//    public String getMockOtp(String contactPhone) {
+//        if (contactPhone.isBlank()){
+//            throw new NotFoundException("You haven't entered phone number yet!");
+//        }
+//        List<Customer> customers = customerRepo.findCustomerByContactPhone(contactPhone);
+//        if (customers.size() == 0){
+//            throw new NotFoundException("Phone number is not included in our system!");
+//        }
+//        return "The otp has been sent to your phone number, please check it and fill it to the blank for OTP";
+//    }
 
     @CacheEvict(value = "Customer", allEntries = true)
     @Override
@@ -309,7 +371,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void validateDatabase() {
-        if (customerRepo.findAll().size() == 0){
+        if (customerRepo.findAll().size() == 0) {
             throw new BadRequestException("There is no data in database anymore!");
         }
     }

@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableAsync
 public class InternetMandalayApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(InternetMandalayApplication.class, args);
 	}
