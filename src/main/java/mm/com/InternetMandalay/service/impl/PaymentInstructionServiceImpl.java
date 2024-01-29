@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PaymentInstructionServiceImpl implements PaymentInstructionService {
@@ -24,6 +25,7 @@ public class PaymentInstructionServiceImpl implements PaymentInstructionService 
 
     @CacheEvict(value = "Payment-Instruction", allEntries = true)
     @Override
+    @Transactional
     public PaymentInstructionDTO update(String title, String description) {
         if (!paymentInstructionRepo.existsById(id)){
             return this.paymentMapper(this.createPaymentInstruction(title, description));

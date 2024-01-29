@@ -28,6 +28,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,6 +66,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @CacheEvict(value = "Customer", allEntries = true)
     @Override
+    @Transactional
     public void uploadData2(InputStream excelFile) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         List<Customer> customers = new ArrayList<>();

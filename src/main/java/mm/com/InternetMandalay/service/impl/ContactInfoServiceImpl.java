@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ContactInfoServiceImpl implements ContactInfoService {
@@ -21,6 +22,7 @@ public class ContactInfoServiceImpl implements ContactInfoService {
 
     @CacheEvict(value = "Contact-info", allEntries = true)
     @Override
+    @Transactional
     public ContactInfoDTO update(ContactInfoUpdate contactInfoUpdate) {
         if(!contactInfoRepo.existsContactInfoById(id)){
             ContactInfo contactInfo = ContactInfo.builder()

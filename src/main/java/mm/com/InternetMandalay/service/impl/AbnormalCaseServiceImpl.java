@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AbnormalCaseServiceImpl implements AbnormalCaseService {
@@ -24,6 +25,7 @@ public class AbnormalCaseServiceImpl implements AbnormalCaseService {
 
     @CacheEvict(value = "Abnormal-case", allEntries = true)
     @Override
+    @Transactional
     public AbnormalCaseDTO update(String title, String description) {
         if (!abnormalCaseRepo.existsById(id)){
             return this.abnormalMapper(this.createAbnormalCase(title, description));

@@ -66,13 +66,6 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         http.csrf().disable().cors()
                 .and().authorizeRequests().antMatchers("/user/**").permitAll()
                 .and().authorizeRequests().anyRequest().authenticated();
-//                .and().authorizeRequests().anyRequest().permitAll();
-
-       /* http.csrf().disable().cors();
-        http.authorizeRequests()
-                .antMatchers("/partner/confirm/**", "/wallet/confirm/**", "/wallet/deposit/confirm/**").hasRole("admin_prizegw")
-                .antMatchers("/**").hasAnyRole("admin_prizegw", "staff_prizegw")
-                .anyRequest().authenticated();*/
     }
 }
 

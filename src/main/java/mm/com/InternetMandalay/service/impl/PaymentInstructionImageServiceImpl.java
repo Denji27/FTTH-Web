@@ -6,6 +6,7 @@ import mm.com.InternetMandalay.repository.PaymentInstructionImageRepo;
 import mm.com.InternetMandalay.service.PaymentInstructionImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,7 @@ public class PaymentInstructionImageServiceImpl implements PaymentInstructionIma
     private PaymentInstructionImageRepo imageRepo;
 
     @Override
+    @Transactional
     public PaymentInstructionImage uploadImage(MultipartFile file) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         if (fileName.contains("..")){

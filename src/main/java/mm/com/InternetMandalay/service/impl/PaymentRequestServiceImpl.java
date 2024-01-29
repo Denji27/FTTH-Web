@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.DecimalFormat;
@@ -53,6 +54,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
 
     @CacheEvict(value = "Payment-request", allEntries = true)
     @Override
+    @Transactional
     public String submitPaymentReuqest(String contactPhone, String ftthAccount) {
         if(contactPhone.isBlank() & ftthAccount.isBlank()){
             throw new BadRequestException("You haven't enter information yet, please enter both ftthAccount and contactPhone before submitting!");

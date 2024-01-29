@@ -6,6 +6,7 @@ import mm.com.InternetMandalay.repository.AbnormalCaseImageRepo;
 import mm.com.InternetMandalay.service.AbnormalCaseImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,7 @@ public class AbnormalCaseImageServiceImpl implements AbnormalCaseImageService {
     private AbnormalCaseImageRepo imageRepo;
 
     @Override
+    @Transactional
     public AbnormalCaseImage uploadImage(MultipartFile file) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         if (fileName.contains("..")){

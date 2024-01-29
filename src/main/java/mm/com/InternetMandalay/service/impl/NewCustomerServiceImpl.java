@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class NewCustomerServiceImpl implements NewCustomerService {
 
     @CacheEvict(value = "New-Customer", allEntries = true)
     @Override
+    @Transactional
     public NewCustomer create(String collaboratorCode ,NewCustomerRequest newCustomerRequest) {
         NewCustomer newCustomer = new NewCustomer();
             newCustomer.setCollaboratorCode(collaboratorCode);
